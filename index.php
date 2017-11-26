@@ -7,55 +7,65 @@ Static		-Usable out of class
 
 This		-Refer to the Calling object
 Self		-Like This but only For static
-Parent		-Call sth from its Parent class
-Static		-Call sth from its Child class
+Parent		-Call variable from its Parent class
+Static		-Call variable from its Child class
 */
 if(1){
 ini_set('display_errors', 'On');	//Debug
 error_reporting(E_ALL | E_STRICT);
 }
 
-class Manage {	
-    public static function autoload($class) {
-        //you can put any file name or directory here
-        include $class . '.php';
-    }
+function autoload($class) {
+	$nm = explode('\\', $class);
+	$namespc = end($nm);
+	require_once "$namespc.php";
 }
-spl_autoload_register(array('Manage', 'autoload'));	//autoload classes
+spl_autoload_register('autoload');	//autoload classes
 
 define("username", "kz233");
 define("password", "luy642EA2");
 define("databasesoftware", "mysql");
 define("hostwebsite", "sql.njit.edu");
 
+new htmlpage();	//instantiate main page
 
+class htmlpage{	//Weaver main page
 
-static $html = "";
-$html .= "<html lang='en'>";
-	$html .= "<head>";
-	$html .= "<meta charset='utf-8'>
-		<title>Sql Active Record</title>
-		<meta name='description' content='Sql Active Record'>
-		<meta name='author' content='Kan'>
-		<link rel='stylesheet' href='css/styles.css?v=1.0'>";
-	$html .= "</head>";
-
-	$html .= "<body>";
-	$html .= form::upld();
-	if(isset($_POST["submit"])) {
-		$html .= $_POST["databasename"]::$_POST["collection"]();
+	public function __construct(){	//Write main page
+		$formstring = $this->htmlform();
+		$tablestring = $this->autoshowtable();
+		include "htmlpages/homepage.php";
 	}
 
-	$html .= "</body>";
-$html .= "</html>";
-echo $html;
+
+	public function htmlform() {	//Select SQL form
+		$formstring = "";
+		$Allcollectionfunctions = get_class_methods("collections");
+		unset($Allcollectionfunctions[0]);
+		foreach ($Allcollectionfunctions as $functionname)
+			$formstring .="<option value=$functionname>$functionname</option>";
+		return $formstring;
+	//two select tools. List all collection's function except execute()	
+	}
+	
+	public function autoshowtable() {//Run e.g. account::ShowData and return table of main page
+		$tablestring = "";
+		if(isset($_POST["submit"])) {
+			$tablestring = $_POST["databasename"]::$_POST["collection"]();
+		}
+		return $tablestring;
+	}
+
+}
 
 
-abstract class collections{
-//	protected static $a;
 
-	static public function executeScode($Scode){
-		$conn = Database::connect();
+
+
+abstract class collections{	//Save functions of SQL Operation by ActiveRecord
+
+	final static public function executeScode($Scode){	//Execute SQL code and return table display html string
+		$conn = db\Database::connect();
 		if($conn){			
 			$launchcode = $conn->prepare($Scode);
 			$launchcode->execute();
@@ -66,29 +76,43 @@ abstract class collections{
 		}
 	}
 
-	static public function ShowData($id = ""){
+	final static public function ShowData($id = ""){	//makeup select * from database 
 		$id = ($id !== "") ? "= " . $id : "";
 		$Scode = 'SELECT * FROM ' . get_called_class() . " WHERE id " . $id;
 		$Result = self::executeScode($Scode);
-		return table::tablecontect($Result, $Scode);
+		return tb\table::tablecontect($Result, $Scode);	//return display html table code
 	}
 
-	static public function ShowDataID_5(){
+	final static public function ShowDataID_5(){	//call ShowData to select * from database where id = 5
 		$Result = self::ShowData("5");
 		return $Result;
 	}
 
-	static public function SQLDelete(){
-		$record = new static::$modelNM();
+	final static public function SQLDelete(){	//Use ActiveRecord to Generate and Run SQL code
+		$record = new static::$modelNM();	//instantiate new object
 		$record->fname = "Dalven";
 		$record->lname = "Kelwen";
-		$record->GoFunction("Delete");
-		return self::showData();
+		$record->GoFunction("Delete");	//Run Delete() in modol class and echo success or not
+		return self::showData();	//return display html table code from ShowData
 	}
 
-	static public function SQLUpdate(){
-		$record = new static::$modelNM();
-		$record->id = 7;
+	final static public function SQLUpdate_11(){	//Use ActiveRecord to Generate and Run SQL code
+		$record = new static::$modelNM();	//instantiate new object
+		$record->id = 11;
+		$record->email = 'kzzz@njit.edu';
+		$record->fname = "Kan";
+		$record->lname = "Zhang";
+		$record->phone = "44144414";
+		$record->birthday = "1800-01-01";
+		$record->gender = "male";
+		$record->password = "31s";
+		$record->GoFunction("Update");	//Run Update() in modol class and echo success or not
+		return self::showData();	//return display html table code from ShowData	
+	}
+
+	final static public function SQLInsert(){	//Use ActiveRecord to Generate and Run SQL code
+		$record = new static::$modelNM();	//instantiate new object
+		$record->id = 7;	//Will be UNSET() in object
 		$record->email = 'kel@njit.edu';
 		$record->fname = "Dalven";
 		$record->lname = "Kelwen";
@@ -96,22 +120,8 @@ abstract class collections{
 		$record->birthday = "1994-01-01";
 		$record->gender = "male";
 		$record->password = "31s";
-		$record->GoFunction("Update");
-		return self::showData();		
-	}
-
-	static public function SQLInsert(){
-		$record = new static::$modelNM();
-		$record->id = 7;	//Will be UNSET()
-		$record->email = 'kel@njit.edu';
-		$record->fname = "Dalven";
-		$record->lname = "Kelwen";
-		$record->phone = "44144414";
-		$record->birthday = "1994-01-01";
-		$record->gender = "male";
-		$record->password = "31s";
-		$record->GoFunction("Insert");
-		return self::showData();
+		$record->GoFunction("Insert");	//Run Insert() in modol class and echo success or not
+		return self::showData();	//return display html table code from ShowData
 	}
 }
 
@@ -126,43 +136,43 @@ class todos extends collections{
 
 
 abstract class model{
-	public function GoFunction($action){
-		$conn = Database::connect();
-		if($conn){
-			$content = get_object_vars($this);
+	final public function GoFunction($action){	//Call function to Compile and Run SQL code, echo operation state
+		$conn = db\Database::connect();
+		if($conn){	//Do remains after connect
+			$content = get_object_vars($this);	//get all variable in child class
 			$Scode = $this->$action($content);
 			$launchcode = $conn->prepare($Scode); 
 			$Result = $launchcode->execute();
 			$Result = ($Result = 1) ? " Successful " : " Error ";
-			echo "</br>SQL Code : " . $Scode . "</br>" . $action . " Operation " . $Result;
+			echo "SQL Code : </br>" . $Scode . "<hr>" . $action . " Operation " . $Result . "<hr>";
 		}		
 	}
 
-	private function Insert($content) {
+	final private function Insert($content) {	//Generate Insert Code with variable in child class
 	unset($content['id']);
 	$insertInto = "INSERT INTO " . get_called_class() . "s (";
-	$Keystring = implode(',', array_keys($content)) . ") ";
+	$Keystring = implode(',', array_keys($content)) . ") ";	//implode array to string
 	$valuestring = implode("','", $content);
 	$Scode = $insertInto . $Keystring . "VALUES ('" . $valuestring . "');";
 	return $Scode;
 	}
 
-	private function Update($content) {
+	final private function Update($content) {	//Generate Update Code with variable in child class
 	$where = " WHERE id = " . $content['id'];
 	unset($content['id']);
 	$update = "UPDATE " . get_called_class() . "s SET ";
-	foreach ($content as $key => $value)
+	foreach ($content as $key => $value)	//find variable with value to update
 		$update .= ($value !== Null) ? " $key = \"$value\", " : "";
 	$update = substr($update, 0, -2);
-	$Scode = $update . $where;
+	$Scode = $update . $where;		//cut its last string of ","
 	return $Scode;
 	}
 
-	private function Delete($content) {
+	final private function Delete($content) {	//Generate Delete Code with variable in child class
 	$where = " WHERE";
-	foreach ($content as $key => $value)
+	foreach ($content as $key => $value)	//find variable with value to designate deleting line
 		$where .= ($value !== Null) ? " $key = \"$value\" AND" : "";
-	$where = substr($where, 0, -4);
+	$where = substr($where, 0, -4);		//cut its last string of "and"
 	$Scode = "DELETE FROM " .  get_called_class() . "s" . $where . ";";
 	return $Scode;
 	}
@@ -170,7 +180,7 @@ abstract class model{
 	//private function Find() {}
 }
 
-class account extends model{
+class account extends model{	//Variables of table accounts 
 	public $id;
 	public $email;
 	public $fname;
@@ -181,7 +191,7 @@ class account extends model{
 	public $password;
 }
 
-class todo extends model{
+class todo extends model{	//Variables of table todos
 	public $id;
 	public $owneremail;
 	public $ownerid;
@@ -189,88 +199,4 @@ class todo extends model{
 	public $duedate;
 	public $message;
 	public $isdone;
-}
-
-
-
-
-class form{
-	static public function upld() {	//Select SQL form
-	$msg = '<form action="index.php" method="post" enctype="multipart/form-data">';
-	$msg .= '<h1 style="color:LightGreen;">Select SQL Code: </h1>';
-
-	$msg .= '<select name="databasename">';
-	$msg .= '<option value="accounts">accounts</option>';
-	$msg .= '<option value="todos">todos</option>';
-	$msg .= '</select>';
-
-	$msg .= '<select name="collection">';
-	$Allfunctions = get_class_methods("collections");
-	unset($Allfunctions[0]);
-	foreach ($Allfunctions as $functionname)
-	$msg .="<option value=$functionname>$functionname</option>";
-	$msg .= '</select>';
-
-	$msg .= '<input type="submit" value="Run" name="submit">';
-	$msg .= '</form>';
-	return $msg;
-	}
-}
-
-
-
-
-
-
-
-class Database {
-
-	protected static $conn;
-
-	static public function connect() {
-		if(!self::$conn){
-			new Database();
-		}
-		return self::$conn;
-	}
-
-
-	public function __construct() {	//Set PDO object and Test connectivity
-		try {
-			self::$conn = new PDO(databasesoftware . ':host=' . hostwebsite .';dbname=' . username, username, password);
-			self::$conn->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
-			echo 'Connection Successful To Database.';
-		}
-		catch (PDOException $e) {
-			echo "Connection Error To Database: " . $e->getMessage();
-		}
-	}
-	
-
-
-}
-
-class table {
-	static public function tablecontect($tabl, $tablename) {	//display result within table function
-		$str = "<div><table style='width:100%'><caption>" . $tablename . "</caption>";
-		foreach($tabl as $i => $k) {	
-			$str .= "<tr>";
-			if ($k == $tabl[0]) {	//first line of type name
-				foreach($k as $m => $n) {
-					if (!is_numeric($m)) {
-						$str .= "<th>$m</th>";
-					}
-				}
-				$str .= "</tr><tr>";
-			}
-			foreach($k as $j => $o) {	//split data
-				if (!is_numeric($j)) {
-					$str .= "<td>$o</td>";
-				}
-			}
-				$str .= "</tr>";
-		}
-		$str .= "</table></div>";
-		return $str;	//answer question and display result
-	}
 }
