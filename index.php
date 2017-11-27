@@ -20,6 +20,7 @@ setcookie("Username", "mjlee@njit.edu", time() + (86400 * 30), "/");
 setcookie("Password", "1234", time() + (86400 * 30), "/");
 }
 
+
 function autoload($class) {
 	$nm = explode('\\', $class);
 	$namespc = end($nm);
