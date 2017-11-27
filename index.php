@@ -15,6 +15,11 @@ ini_set('display_errors', 'On');	//Debug
 error_reporting(E_ALL | E_STRICT);
 }
 
+if(0){
+setcookie("Username", "mjlee@njit.edu", time() + (86400 * 30), "/");
+setcookie("Password", "1234", time() + (86400 * 30), "/");
+}
+
 function autoload($class) {
 	$nm = explode('\\', $class);
 	$namespc = end($nm);
@@ -76,6 +81,29 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 		}
 	}
 
+	final static public function CreateUser(){	//Use ActiveRecord to Generate and Run SQL code
+		$record = new static::$modelNM();	//instantiate new object
+		$record->email = $_POST["email"];
+		$record->fname = $_POST["fname"];
+		$record->lname = $_POST["lname"];
+		$record->phone = $_POST["phone"];
+		$record->birthday = $_POST["birthday"];
+		$record->gender = $_POST["gender"];
+		$record->password = $_POST["password"];
+		$record->GoFunction("Insert");	//Run Insert() in modol class and echo success or not
+		setcookie("Username", $_POST["email"], time() + (86400 * 30), "/");
+		setcookie("Password", $_POST["password"], time() + (86400 * 30), "/");		
+		return self::showData();	//return display html table code from ShowData
+	}
+
+	final static public function passwordpair(){
+		$Scode = "SELECT * FROM accounts WHERE email = \"" . $_POST["Username"] . "\" AND password = \"" . $_POST["Password"] . "\"";
+		$Result = self::executeScode($Scode);
+		//print_r($Result);//tb\table::tablecontect($Result, $Scode);
+		echo (empty($Result)) ? "Wrong Pairs" : "Right Pairs";
+		//return $Scode;
+	}
+
 	final static public function ShowData($id = ""){	//makeup select * from database 
 		$id = ($id !== "") ? "= " . $id : "";
 		$Scode = 'SELECT * FROM ' . get_called_class() . " WHERE id " . $id;
@@ -122,7 +150,9 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 		$record->password = "31s";
 		$record->GoFunction("Insert");	//Run Insert() in modol class and echo success or not
 		return self::showData();	//return display html table code from ShowData
+
 	}
+
 }
 
 class accounts extends collections{
