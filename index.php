@@ -10,6 +10,7 @@ Self		-Like This but only For static
 Parent		-Call variable from its Parent class
 Static		-Call variable from its Child class
 */
+session_start();
 if(1){
 ini_set('display_errors', 'On');	//Debug
 error_reporting(E_ALL | E_STRICT);
@@ -38,6 +39,11 @@ new htmlpage();	//instantiate main page
 class htmlpage{	//Weaver main page
 
 	public function __construct(){	//Write main page
+		//echo $_SESSION["Username"];
+		if (isset($_SESSION["Username"])) 
+		{
+			echo $_SESSION["Username"] . " " . $_SESSION["Password"];
+		}		
 		$formstring = $this->htmlform();
 		$tablestring = $this->autoshowtable();
 		include "htmlpages/homepage.php";
@@ -101,8 +107,16 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 		$Scode = "SELECT * FROM accounts WHERE email = \"" . $_POST["Username"] . "\" AND password = \"" . $_POST["Password"] . "\"";
 		$Result = self::executeScode($Scode);
 		//print_r($Result);//tb\table::tablecontect($Result, $Scode);
-		echo (empty($Result)) ? "Wrong Pairs" : "Right Pairs";
+		if (empty($Result)) {
+			echo "Wrong Pairs";
+		} else {
+			echo "Right Pairs";
 		//return $Scode;
+			$_SESSION["Username"] = $_POST["Username"];
+			$_SESSION["Password"] = $_POST["Password"];
+			setcookie("Username", $_POST["email"], time() + (86400 * 30), "/");
+			setcookie("Password", $_POST["password"], time() + (86400 * 30), "/");
+		}
 	}
 
 	final static public function ShowData($id = ""){	//makeup select * from database 
