@@ -89,18 +89,22 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 	}
 
 	final static public function CreateUser(){	//Use ActiveRecord to Generate and Run SQL code
-		$record = new static::$modelNM();	//instantiate new object
-		$record->email = $_POST["email"];
-		$record->fname = $_POST["fname"];
-		$record->lname = $_POST["lname"];
-		$record->phone = $_POST["phone"];
-		$record->birthday = $_POST["birthday"];
-		$record->gender = $_POST["gender"];
-		$record->password = $_POST["password"];
-		$record->GoFunction("Insert");	//Run Insert() in modol class and echo success or not
-		setcookie("Username", $_POST["email"], time() + (86400 * 30), "/");
-		setcookie("Password", $_POST["password"], time() + (86400 * 30), "/");		
-		return self::showData();	//return display html table code from ShowData
+		if(strlen($_POST["password"])>6) {
+			$record = new static::$modelNM();	//instantiate new object
+			$record->email = $_POST["email"];
+			$record->fname = $_POST["fname"];
+			$record->lname = $_POST["lname"];
+			$record->phone = $_POST["phone"];
+			$record->birthday = $_POST["birthday"];
+			$record->gender = $_POST["gender"];
+			$record->password = $_POST["password"];
+			$record->GoFunction("Insert");	//Run Insert() in modol class and echo success or not
+			setcookie("Username", $_POST["email"], time() + (86400 * 30), "/");
+			setcookie("Password", $_POST["password"], time() + (86400 * 30), "/");		
+			return self::showData();	//return display html table code from ShowData
+		} else {
+			echo "Password should be more than 6 characters";
+		}
 	}
 
 	final static public function passwordpair(){
