@@ -169,7 +169,10 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 		$record->password = "31s";
 		$record->GoFunction("Insert");	//Run Insert() in modol class and echo success or not
 		return self::showData();	//return display html table code from ShowData
+	}
 
+	final static public function Session_Destroy(){
+		session_destroy();
 	}
 
 }
