@@ -10,6 +10,13 @@ Self		-Like This but only For static
 Parent		-Call variable from its Parent class
 Static		-Call variable from its Child class
 */
+
+
+//$options = ['cost' => 11, 'salt' => mcrypt_create_iv(22, MCRYPT_DEV_URANDOM),];
+//$apassword = password_hash("a", PASSWORD_BCRYPT, $options);
+//echo $apassword;
+//echo "<br>";
+
 session_start();
 if(1){
 ini_set('display_errors', 'On');	//Debug
@@ -89,38 +96,51 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 	}
 
 	final static public function CreateUser(){	//Use ActiveRecord to Generate and Run SQL code
-		if(strlen($_POST["password"])>6) {
-			$record = new static::$modelNM();	//instantiate new object
-			$record->email = $_POST["email"];
-			$record->fname = $_POST["fname"];
-			$record->lname = $_POST["lname"];
-			$record->phone = $_POST["phone"];
-			$record->birthday = $_POST["birthday"];
-			$record->gender = $_POST["gender"];
-			$record->password = $_POST["password"];
-			$record->GoFunction("Insert");	//Run Insert() in modol class and echo success or not
-			setcookie("Username", $_POST["email"], time() + (86400 * 30), "/");
-			setcookie("Password", $_POST["password"], time() + (86400 * 30), "/");		
-			return self::showData();	//return display html table code from ShowData
-		} else {
-			echo "Password should be more than 6 characters";
+		if(strlen($_POST["password"]) < 6) {
+			echo "Password should at least be more than 6 number";
+			return 0;
 		}
+		if(!preg_match("/[a-z]/i", $_POST["email"])) {
+			echo "Username should at least contain 1 letter";
+			return 0;
+		}
+
+		$record = new static::$modelNM();	//instantiate new object
+		$record->email = $_POST["email"];
+		$record->fname = $_POST["fname"];
+		$record->lname = $_POST["lname"];
+		$record->phone = $_POST["phone"];
+		$record->birthday = $_POST["birthday"];
+		$record->gender = $_POST["gender"];
+
+		$options = ['cost' => 11, 'salt' => mcrypt_create_iv(22, MCRYPT_DEV_URANDOM),
+];
+		$record->password = password_hash($_POST["password"], PASSWORD_BCRYPT, $options);
+
+		$record->GoFunction("Insert");	//Run Insert() in modol class and echo success or not
+		setcookie("Username", $_POST["email"], time() + (86400 * 30), "/");
+		setcookie("Password", $_POST["password"], time() + (86400 * 30), "/");		
+		return self::showData();	//return display html table code from ShowData
+		
 	}
 
 	final static public function passwordpair(){
-		$Scode = "SELECT * FROM accounts WHERE email = \"" . $_POST["Username"] . "\" AND password = \"" . $_POST["Password"] . "\"";
+		$Scode = "SELECT password FROM accounts WHERE email = \"" . $_POST["Username"] . "\"";
 		$Result = self::executeScode($Scode);
-		//print_r($Result);//tb\table::tablecontect($Result, $Scode);
-		if (empty($Result)) {
-			echo "Wrong Pairs";
-		} else {
+		$passwordhashingcode = $Result[0]->password;
+		$BoolGate = password_verify($_POST["Password"], $passwordhashingcode);
+		
+		if ($BoolGate) {
 			echo "Right Pairs";
+		} else {
+			echo "Wrong Pairs";
 		//return $Scode;
 			$_SESSION["Username"] = $_POST["Username"];
 			$_SESSION["Password"] = $_POST["Password"];
 			setcookie("Username", $_POST["email"], time() + (86400 * 30), "/");
 			setcookie("Password", $_POST["password"], time() + (86400 * 30), "/");
 		}
+
 	}
 
 	final static public function ShowData($id = ""){	//makeup select * from database 
