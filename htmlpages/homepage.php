@@ -28,7 +28,7 @@
 		Username:
 		<input type="text" value="kong" name="username">
 		Password:
-		<input type="text" value="111111" name="password"></br>
+		<input type="password" value="111111" name="password"></br>
 		First Name:
 		<input type="text" value="Fish" name="fname">
 		Last Name:

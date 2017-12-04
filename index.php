@@ -134,7 +134,7 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 		$record->password = password_hash($_POST["password"], PASSWORD_BCRYPT, $options);
 
 		$record->GoFunction("Insert");	//Run Insert() in modol class and echo success or not
-		setcookie("Username", $_POST["email"], time() + (86400 * 30), "/");
+		setcookie("Username", $_POST["username"], time() + (86400 * 30), "/");
 		setcookie("Password", $_POST["password"], time() + (86400 * 30), "/");		
 		return self::showData();	//return display html table code from ShowData
 		
@@ -143,18 +143,20 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 	final static public function passwordpair(){
 		$Scode = "SELECT password FROM accounts WHERE username = \"" . $_POST["Username"] . "\"";
 		$Result = self::executeScode($Scode);
-		$passwordhashingcode = $Result[0]->password;
-		$BoolGate = password_verify($_POST["Password"], $passwordhashingcode);
-		
+		$BoolGate = FALSE;
+		if($Result != null) {
+			$passwordhashingcode = $Result[0]->password;
+			$BoolGate = password_verify($_POST["Password"], $passwordhashingcode);
+		}
+
 		if ($BoolGate) {
 			echo "Right Pairs";
-		} else {
-			echo "Wrong Pairs";
-		//return $Scode;
 			$_SESSION["Username"] = $_POST["Username"];
 			$_SESSION["Password"] = $_POST["Password"];
-			setcookie("Username", $_POST["email"], time() + (86400 * 30), "/");
-			setcookie("Password", $_POST["password"], time() + (86400 * 30), "/");
+			setcookie("Username", $_POST["Username"], time() + (86400 * 30), "/");
+			setcookie("Password", $_POST["Password"], time() + (86400 * 30), "/");
+		} else {
+			echo "Wrong Pairs";
 		}
 
 	}
