@@ -1,3 +1,4 @@
+<?php if(get_class() == null) {header('Location: ../index.php');} ?>
 <!doctype html>
 
 <html lang='en'>

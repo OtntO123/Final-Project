@@ -53,6 +53,7 @@ class htmlpage{	//Weaver main page
 		}		
 		$formstring = $this->htmlform();
 		$tablestring = $this->autoshowtable();
+		$requestfromserver = "";
 		include "htmlpages/homepage.php";
 	}
 
@@ -95,17 +96,32 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 		}
 	}
 
-	final static public function CreateUser(){	//Use ActiveRecord to Generate and Run SQL code
+	final static public function CreateUser(){	//Use ActiveRecord to Generate and Run SQL code		
+		$wr = "";
+		
 		if(strlen($_POST["password"]) < 6) {
-			echo "Password should at least be more than 6 number";
-			return 0;
+			$wr .= "Password should at least be more than 6 number.<br>";
 		}
-		if(!preg_match("/[a-z]/i", $_POST["email"])) {
-			echo "Username should at least contain 1 letter";
+
+		if(!preg_match("/[a-z]/i", $_POST["username"])) {
+			$wr .= "Username at least contain 1 letter.<br>";
+		}
+
+		if(!preg_match("/[a-z]/i", $_POST["fname"]) && !preg_match("/[a-z]/i", $_POST["lname"])) {
+			$wr .= "First or Last Name at least contain 1 letter.<br>";
+		}
+
+		if (!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)) {
+			$wr .= "Invalid email format.<br>"; 
+		}
+		
+		if($wr != "") {
+			echo $wr;
 			return 0;
 		}
 
 		$record = new static::$modelNM();	//instantiate new object
+		$record->username = $_POST["username"];
 		$record->email = $_POST["email"];
 		$record->fname = $_POST["fname"];
 		$record->lname = $_POST["lname"];
@@ -125,7 +141,7 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 	}
 
 	final static public function passwordpair(){
-		$Scode = "SELECT password FROM accounts WHERE email = \"" . $_POST["Username"] . "\"";
+		$Scode = "SELECT password FROM accounts WHERE username = \"" . $_POST["Username"] . "\"";
 		$Result = self::executeScode($Scode);
 		$passwordhashingcode = $Result[0]->password;
 		$BoolGate = password_verify($_POST["Password"], $passwordhashingcode);
@@ -254,13 +270,14 @@ abstract class model{
 
 class account extends model{	//Variables of table accounts 
 	public $id;
-	public $email;
+	public $username;
+	public $password;
 	public $fname;
 	public $lname;
-	public $phone;
-	public $birthday;
 	public $gender;
-	public $password;
+	public $birthday;
+	public $phone;
+	public $email;
 }
 
 class todo extends model{	//Variables of table todos

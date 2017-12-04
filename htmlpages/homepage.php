@@ -1,3 +1,4 @@
+<?php if(get_class() == null) {header('Location: ../index.php');} ?>
 <!doctype html>
 
 <html lang='en'>
@@ -23,8 +24,11 @@
 <?php  echo (isset($_COOKIE["Password"])) ? $_COOKIE["Password"] : 'Please Enter Password Here';  ?>
 					name="Password"></p>
 
-		<p>Email Address:
-		<input type="text" value="Fish@njit.edu" name="email">
+		<p>
+		Username:
+		<input type="text" value="kong" name="username">
+		Password:
+		<input type="text" value="111111" name="password"></br>
 		First Name:
 		<input type="text" value="Fish" name="fname">
 		Last Name:
@@ -32,11 +36,12 @@
 		Gender:
 		<input type="text" value="Male" name="gender">
 		Phone Number:
-		<input type="text" value="0000000000" name="phone"></br>
-		Password:
-		<input type="text" value="1111" name="password">
+		<input type="text" value="0000000000" name="phone">
 		Birthday:
-		<input type="text" value="2000-01-01" name="birthday"></p>
+		<input type="text" value="2000-01-01" name="birthday"></br>
+		Email Address:
+		<input type="text" value="Fish@njit.edu" name="email">
+		</p>
 
 
 		<select name="databasename">
