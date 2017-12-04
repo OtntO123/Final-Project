@@ -46,14 +46,29 @@ new htmlpage();	//instantiate main page
 class htmlpage{	//Weaver main page
 
 	public function __construct(){	//Write main page
-		//echo $_SESSION["Username"];
-		if (isset($_SESSION["Username"])) 
-		{
-			echo $_SESSION["Username"] . " " . $_SESSION["Password"];
-		}		
+		//echo $_SESSION["Username"];	
 		$formstring = $this->htmlform();
 		$tablestring = $this->autoshowtable();
 		$requestfromserver = "";
+
+		if (isset($_SESSION["Username"])) 
+			echo "Session - Username:" . $_SESSION["Username"] . " - Password:" . $_SESSION["Password"];
+
+		$inputlabel = array ("Username", "Password", "First Name", "Last Name", "Gender", "Birthday", "Phone Number", "Email Address");
+		$inputtype = array ("text", "password", "text", "text", "text", "date", "number", "email");
+		$inputname = array ("username", "password", "fname", "lname", "gender", "birthday", "phone", "email");
+		$inputstr = $inputlabel;
+
+		if (isset($_SESSION["Temprecord"])) {
+			$rec = $_SESSION["Temprecord"];
+			unset($inputname->id);
+		} else { $rec = new account();}
+
+		foreach ($inputname as $key => $val) {
+			$recval = $rec->$val;
+			$inputstr[$key] .= " <input type = \"$inputtype[$key]\" value = \"$recval\" name = \"$inputname[$key]\"> ";
+		}
+
 		include "htmlpages/homepage.php";
 	}
 
@@ -98,7 +113,6 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 
 	final static public function CreateUser(){	//Use ActiveRecord to Generate and Run SQL code		
 		$wr = "";
-		
 		if(strlen($_POST["password"]) < 6) {
 			$wr .= "Password should at least be more than 6 number.<br>";
 		}
@@ -110,37 +124,39 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 		if(!preg_match("/[a-z]/i", $_POST["fname"]) && !preg_match("/[a-z]/i", $_POST["lname"])) {
 			$wr .= "First or Last Name at least contain 1 letter.<br>";
 		}
-
-		if (!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)) {
-			$wr .= "Invalid email format.<br>"; 
+		
+		if($_POST["email"] != "") {
+			if (!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)) {
+				$wr .= "Invalid email format.<br>"; 
+			}
 		}
 		
-		if($wr != "") {
-			echo $wr;
-			return 0;
-		}
-
 		$record = new static::$modelNM();	//instantiate new object
 		$record->username = $_POST["username"];
-		$record->email = $_POST["email"];
 		$record->fname = $_POST["fname"];
 		$record->lname = $_POST["lname"];
+		$record->gender = $_POST["gender"];
 		$record->phone = $_POST["phone"];
 		$record->birthday = $_POST["birthday"];
-		$record->gender = $_POST["gender"];
+		$record->email = $_POST["email"];
 
-		$options = ['cost' => 11, 'salt' => mcrypt_create_iv(22, MCRYPT_DEV_URANDOM),
-];
+		if($wr != "") {
+			echo $wr;
+			$_SESSION["Temprecord"] = $record;
+			return NULL;
+		}
+
+		$options = ['cost' => 11, 'salt' => mcrypt_create_iv(22, MCRYPT_DEV_URANDOM),];
 		$record->password = password_hash($_POST["password"], PASSWORD_BCRYPT, $options);
 
 		$record->GoFunction("Insert");	//Run Insert() in modol class and echo success or not
+		$_SESSION["Username"] = $_POST["username"];
+		$_SESSION["Password"] = $_POST["password"];
 		setcookie("Username", $_POST["username"], time() + (86400 * 30), "/");
-		setcookie("Password", $_POST["password"], time() + (86400 * 30), "/");		
 		return self::showData();	//return display html table code from ShowData
-		
 	}
 
-	final static public function passwordpair(){
+	final static public function Login(){
 		$Scode = "SELECT password FROM accounts WHERE username = \"" . $_POST["Username"] . "\"";
 		$Result = self::executeScode($Scode);
 		$BoolGate = FALSE;
@@ -154,7 +170,6 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 			$_SESSION["Username"] = $_POST["Username"];
 			$_SESSION["Password"] = $_POST["Password"];
 			setcookie("Username", $_POST["Username"], time() + (86400 * 30), "/");
-			setcookie("Password", $_POST["Password"], time() + (86400 * 30), "/");
 		} else {
 			echo "Wrong Pairs";
 		}

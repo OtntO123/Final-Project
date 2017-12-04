@@ -10,39 +10,29 @@
 	<link rel='stylesheet' href='css/styles.css?v=1.0'>
 </head>
 <body>
-
-
-
 	<form action="index.php" method="post" enctype="multipart/form-data">
 		<h1 style="color:LightGreen;">Select SQL Code: </h1>
-		<p>Username:
-		<input type="text" value=
-<?php  echo (isset($_COOKIE["Username"])) ? $_COOKIE["Username"] : 'Please Enter Username Here';  ?>
-					name="Username">
-		Password:
-		<input type="text" value=
-<?php  echo (isset($_COOKIE["Password"])) ? $_COOKIE["Password"] : 'Please Enter Password Here';  ?>
-					name="Password"></p>
+
+		<p>Login:</p>
 
 		<p>
 		Username:
-		<input type="text" value="kong" name="username">
+		<input type="text" value=
+<?php  echo (isset($_COOKIE["Username"])) ? $_COOKIE["Username"] : '';  ?>
+					name="Username">
+
 		Password:
-		<input type="password" value="111111" name="password"></br>
-		First Name:
-		<input type="text" value="Fish" name="fname">
-		Last Name:
-		<input type="text" value="Jelly" name="lname"></br>
-		Gender:
-		<input type="text" value="Male" name="gender">
-		Phone Number:
-		<input type="text" value="0000000000" name="phone">
-		Birthday:
-		<input type="text" value="2000-01-01" name="birthday"></br>
-		Email Address:
-		<input type="text" value="Fish@njit.edu" name="email">
+		<input type="password" value="" name="Password">
 		</p>
 
+		<p>Create account:</p>
+
+		<p>
+<?php
+foreach ($inputstr as $key => $str)
+	echo $str . "<br>";
+?>
+		</p>
 
 		<select name="databasename">
 		<option value="accounts">accounts</option>
@@ -56,6 +46,7 @@
 		</select>
 
 		<input type="submit" value="Run" name="submit">
+		<input type="reset">
 	</form>
 <?php
 	echo $tablestring;
