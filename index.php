@@ -52,7 +52,7 @@ class htmlpage{	//Weaver main page
 		$requestfromserver = "";
 
 		if (isset($_SESSION["Username"])) 
-			echo "Session - Username:" . $_SESSION["Username"] . " - Password:" . $_SESSION["Password"];
+			echo "Session - Username: " . $_SESSION["Username"] . " - Password:" . $_SESSION["Password"];
 
 		$inputlabel = array ("Username", "Password", "First Name", "Last Name", "Gender", "Birthday", "Phone Number", "Email Address");
 		$inputtype = array ("text", "password", "text", "text", "text", "date", "number", "email");
@@ -82,7 +82,7 @@ class htmlpage{	//Weaver main page
 		return $formstring;
 	//two select tools. List all collection's function except execute()	
 	}
-	
+
 	public function autoshowtable() {//Run e.g. account::ShowData and return table of main page
 		$tablestring = "";
 		if(isset($_POST["submit"])) {
@@ -144,6 +144,8 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 			echo $wr;
 			$_SESSION["Temprecord"] = $record;
 			return NULL;
+		} else {
+			$_SESSION["Temprecord"] = NULL;
 		}
 
 		$options = ['cost' => 11, 'salt' => mcrypt_create_iv(22, MCRYPT_DEV_URANDOM),];
