@@ -111,6 +111,24 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 		}
 	}
 
+	final static public function EditProfile(){	//Use ActiveRecord to Generate and Run SQL code
+		$record = new static::$modelNM();	//instantiate new object
+		$record->id = 11;
+		$record->username = $_POST["username"];
+		$record->fname = $_POST["fname"];
+		$record->lname = $_POST["lname"];
+		$record->gender = $_POST["gender"];
+		$record->phone = $_POST["phone"];
+		$record->birthday = $_POST["birthday"];
+		$record->email = $_POST["email"];
+
+		$options = ['cost' => 11, 'salt' => mcrypt_create_iv(22, MCRYPT_DEV_URANDOM),];
+		$record->password = password_hash($_POST["password"], PASSWORD_BCRYPT, $options);
+
+		$record->GoFunction("Update");	//Run Update() in modol class and echo success or not
+		return self::showData();	//return display html table code from ShowData	
+	}
+
 	final static public function CreateUser(){	//Use ActiveRecord to Generate and Run SQL code		
 		$wr = "";
 		if(strlen($_POST["password"]) < 6) {
