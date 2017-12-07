@@ -12,7 +12,6 @@ class Database {
 		return self::$conn;
 	}
 
-
 	public function __construct() {	//Set PDO object and Test connectivity
 		try {
 			self::$conn = new PDO(databasesoftware . ':host=' . hostwebsite .';dbname=' . username, username, password);

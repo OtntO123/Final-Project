@@ -1,33 +1,10 @@
 <?PHP
-/*Note:
-Public		-Visible in all
-Protected	-Visible in a class and its parent & child class
-Private		-Visible only in a class
-Static		-Usable out of class
-
-This		-Refer to the Calling object
-Self		-Like This but only For static
-Parent		-Call variable from its Parent class
-Static		-Call variable from its Child class
-*/
-
-
-//$options = ['cost' => 11, 'salt' => mcrypt_create_iv(22, MCRYPT_DEV_URANDOM),];
-//$apassword = password_hash("a", PASSWORD_BCRYPT, $options);
-//echo $apassword;
-//echo "<br>";
-
 session_start();
+
 if(1){
 ini_set('display_errors', 'On');	//Debug
 error_reporting(E_ALL | E_STRICT);
 }
-
-if(0){
-setcookie("Username", "mjlee@njit.edu", time() + (86400 * 30), "/");
-setcookie("Password", "1234", time() + (86400 * 30), "/");
-}
-
 
 function autoload($class) {
 	$nm = explode('\\', $class);
@@ -129,7 +106,7 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 		return self::showData();	//return display html table code from ShowData	
 	}
 
-	final static public function CreateUser(){	//Use ActiveRecord to Generate and Run SQL code		
+	final static public function validation() {
 		$wr = "";
 		if(strlen($_POST["password"]) < 6) {
 			$wr .= "Password should at least be more than 6 number.<br>";
@@ -148,7 +125,12 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 				$wr .= "Invalid email format.<br>"; 
 			}
 		}
+		return $wr;
+	}
+
+	final static public function CreateUser(){	//Use ActiveRecord to Generate and Run SQL code		
 		
+		$wr = static::validation();
 		$record = new static::$modelNM();	//instantiate new object
 		$record->username = $_POST["username"];
 		$record->fname = $_POST["fname"];
@@ -157,6 +139,8 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 		$record->phone = $_POST["phone"];
 		$record->birthday = $_POST["birthday"];
 		$record->email = $_POST["email"];
+		$record->addhashpassword($_POST["password"]);
+
 
 		if($wr != "") {
 			echo $wr;
@@ -165,10 +149,8 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 		} else {
 			$_SESSION["Temprecord"] = NULL;
 		}
-
-		$options = ['cost' => 11, 'salt' => mcrypt_create_iv(22, MCRYPT_DEV_URANDOM),];
-		$record->password = password_hash($_POST["password"], PASSWORD_BCRYPT, $options);
-
+		
+	
 		$record->GoFunction("Insert");	//Run Insert() in modol class and echo success or not
 		$_SESSION["Username"] = $_POST["username"];
 		$_SESSION["Password"] = $_POST["password"];
@@ -302,7 +284,11 @@ abstract class model{
 	return $Scode;
 	}
 
-	//private function Find() {}
+	final public function addhashpassword($password) {
+		$options = ['cost' => 11, 'salt' => mcrypt_create_iv(22, MCRYPT_DEV_URANDOM),];
+		$hashedpwd = password_hash($password, PASSWORD_BCRYPT, $options);
+		$this->password = $hashedpwd;
+	}
 }
 
 class account extends model{	//Variables of table accounts 
