@@ -1,314 +1,90 @@
-<?PHP
+<?php
 session_start();
 
-if(1){
-ini_set('display_errors', 'On');	//Debug
-error_reporting(E_ALL | E_STRICT);
+if(0) {
+	echo "METHOD ";
+	print_r($_SERVER['REQUEST_METHOD']);
+	echo "<BR> POST ";
+	print_r($_POST);
+	echo "<BR> GET ";
+	print_r($_GET);
+	echo "<BR> SESSION ";
+	print_r($_SESSION);
+	echo "<BR>";
+	//turn on debugging messages
+	ini_set('display_errors', 'On');
+	error_reporting(E_ALL);
 }
 
-function autoload($class) {
-	$nm = explode('\\', $class);
-	$namespc = end($nm);
-	require_once "$namespc.php";
-}
-spl_autoload_register('autoload');	//autoload classes
+//print_r($_SESSION);
+//Autoloader class to load all the different directories
 
-define("username", "kz233");
-define("password", "luy642EA2");
-define("databasesoftware", "mysql");
-define("hostwebsite", "sql.njit.edu");
+include_once "autoload.php";
 
-new htmlpage();	//instantiate main page
+//put your database credentials here
+include_once "database.php";
 
-class htmlpage{	//Weaver main page
-
-	public function __construct(){	//Write main page
-		//echo $_SESSION["Username"];	
-		$formstring = $this->htmlform();
-		$tablestring = $this->autoshowtable();
-		$requestfromserver = "";
-
-		if (isset($_SESSION["Username"])) 
-			echo "Session - Username: " . $_SESSION["Username"] . " - Password:" . $_SESSION["Password"];
-
-		$inputlabel = array ("Username", "Password", "First Name", "Last Name", "Gender", "Birthday", "Phone Number", "Email Address");
-		$inputtype = array ("text", "password", "text", "text", "text", "date", "number", "email");
-		$inputname = array ("username", "password", "fname", "lname", "gender", "birthday", "phone", "email");
-		$inputstr = $inputlabel;
-
-		if (isset($_SESSION["Temprecord"])) {
-			$rec = $_SESSION["Temprecord"];
-			unset($inputname->id);
-		} else { $rec = new account();}
-
-		foreach ($inputname as $key => $val) {
-			$recval = $rec->$val;
-			$inputstr[$key] .= " <input type = \"$inputtype[$key]\" value = \"$recval\" name = \"$inputname[$key]\"> ";
-		}
-
-		include "htmlpages/homepage.php";
-	}
+//this starts the program as a static.  Start tracing the program from here following the classes and methods being called
+$response = http\processRequest::createResponse();
+//read the notes below
 
 
-	public function htmlform() {	//Select SQL form
-		$formstring = "";
-		$Allcollectionfunctions = get_class_methods("collections");
-		unset($Allcollectionfunctions[0]);
-		foreach ($Allcollectionfunctions as $functionname)
-			$formstring .="<option value=$functionname>$functionname</option>";
-		return $formstring;
-	//two select tools. List all collection's function except execute()	
-	}
+//To make the final project, you need to add routes, controllers, and the html templates in the "pages" folder.
+//One of the big challenges will be to get the tasks to show up for the user that created them.
 
-	public function autoshowtable() {//Run e.g. account::ShowData and return table of main page
-		$tablestring = "";
-		if(isset($_POST["submit"])) {
-			$tablestring = $_POST["databasename"]::$_POST["collection"]();
-		}
-		return $tablestring;
-	}
+//Basic Steps:
 
-}
+//1. Add a route for each request you need to process (GET / POST).  See the template provided in routes.php.
+//2. Add a controller and/or add methods to the controller, which match the actions that you want the program to perform.
+//3. Add HTML view templates to the page folder.  Look at how the template is called and you can pass data to the template
 
+//Suggested order of work:
 
-
-
-
-abstract class collections{	//Save functions of SQL Operation by ActiveRecord
-
-	final static public function executeScode($Scode){	//Execute SQL code and return table display html string
-		$conn = db\Database::connect();
-		if($conn){			
-			$launchcode = $conn->prepare($Scode);
-			$launchcode->execute();
-			$DataTitle = static::$modelNM;
-			$launchcode->setFetchMode(PDO::FETCH_CLASS, $DataTitle);
-			$Result = $launchcode->fetchAll();
-			return $Result;
-		}
-	}
-
-	final static public function EditProfile(){	//Use ActiveRecord to Generate and Run SQL code
-		$record = new static::$modelNM();	//instantiate new object
-		$record->id = 11;
-		$record->username = $_POST["username"];
-		$record->fname = $_POST["fname"];
-		$record->lname = $_POST["lname"];
-		$record->gender = $_POST["gender"];
-		$record->phone = $_POST["phone"];
-		$record->birthday = $_POST["birthday"];
-		$record->email = $_POST["email"];
-
-		$options = ['cost' => 11, 'salt' => mcrypt_create_iv(22, MCRYPT_DEV_URANDOM),];
-		$record->password = password_hash($_POST["password"], PASSWORD_BCRYPT, $options);
-
-		$record->GoFunction("Update");	//Run Update() in modol class and echo success or not
-		return self::showData();	//return display html table code from ShowData	
-	}
-
-	final static public function validation() {
-		$wr = "";
-		if(strlen($_POST["password"]) < 6) {
-			$wr .= "Password should at least be more than 6 number.<br>";
-		}
-
-		if(!preg_match("/[a-z]/i", $_POST["username"])) {
-			$wr .= "Username at least contain 1 letter.<br>";
-		}
-
-		if(!preg_match("/[a-z]/i", $_POST["fname"]) && !preg_match("/[a-z]/i", $_POST["lname"])) {
-			$wr .= "First or Last Name at least contain 1 letter.<br>";
-		}
-		
-		if($_POST["email"] != "") {
-			if (!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)) {
-				$wr .= "Invalid email format.<br>"; 
-			}
-		}
-		return $wr;
-	}
-
-	final static public function CreateUser(){	//Use ActiveRecord to Generate and Run SQL code		
-		
-		$wr = static::validation();
-		$record = new static::$modelNM();	//instantiate new object
-		$record->username = $_POST["username"];
-		$record->fname = $_POST["fname"];
-		$record->lname = $_POST["lname"];
-		$record->gender = $_POST["gender"];
-		$record->phone = $_POST["phone"];
-		$record->birthday = $_POST["birthday"];
-		$record->email = $_POST["email"];
-		$record->addhashpassword($_POST["password"]);
+//1.  Get findall working and displaying a table for the todos class's todos_list method;
+//2.  Get findOne working to find one to-do and make that work for the todos controller show method.  Remember you have to pass the ID.
+//3.  Get the Insert working
+//4.  get the delete working
+//5.  update working
+//6.  once you have this all working for todos start working on accounts
+//7.  once accounts works for login / logout / show user profile / edit profile
+//8.  go back and add a useriD field to your todos table and update program accordingly i.e. the model
+//9.  add a method to your to-do model that retrieves by userID instead of ID.  USe the findONe as an example
+//10.  on your To-do-List method of the todos controller update it so that it takes the USER id out of the session and uses that to retrieve the todos
 
 
-		if($wr != "") {
-			echo $wr;
-			$_SESSION["Temprecord"] = $record;
-			return NULL;
-		} else {
-			$_SESSION["Temprecord"] = NULL;
-		}
-		
-	
-		$record->GoFunction("Insert");	//Run Insert() in modol class and echo success or not
-		$_SESSION["Username"] = $_POST["username"];
-		$_SESSION["Password"] = $_POST["password"];
-		setcookie("Username", $_POST["username"], time() + (86400 * 30), "/");
-		return self::showData();	//return display html table code from ShowData
-	}
-
-	final static public function Login(){
-		$Scode = "SELECT password FROM accounts WHERE username = \"" . $_POST["Username"] . "\"";
-		$Result = self::executeScode($Scode);
-		$BoolGate = FALSE;
-		if($Result != null) {
-			$passwordhashingcode = $Result[0]->password;
-			$BoolGate = password_verify($_POST["Password"], $passwordhashingcode);
-		}
-
-		if ($BoolGate) {
-			echo "Right Pairs";
-			$_SESSION["Username"] = $_POST["Username"];
-			$_SESSION["Password"] = $_POST["Password"];
-			setcookie("Username", $_POST["Username"], time() + (86400 * 30), "/");
-		} else {
-			echo "Wrong Pairs";
-		}
-
-	}
-
-	final static public function ShowData($id = ""){	//makeup select * from database 
-		$id = ($id !== "") ? "= " . $id : "";
-		$Scode = 'SELECT * FROM ' . get_called_class() . " WHERE id " . $id;
-		$Result = self::executeScode($Scode);
-		return tb\table::tablecontect($Result, $Scode);	//return display html table code
-	}
-
-	final static public function ShowDataID_5(){	//call ShowData to select * from database where id = 5
-		$Result = self::ShowData("5");
-		return $Result;
-	}
-
-	final static public function SQLDelete(){	//Use ActiveRecord to Generate and Run SQL code
-		$record = new static::$modelNM();	//instantiate new object
-		$record->fname = "Dalven";
-		$record->lname = "Kelwen";
-		$record->GoFunction("Delete");	//Run Delete() in modol class and echo success or not
-		return self::showData();	//return display html table code from ShowData
-	}
-
-	final static public function SQLUpdate_11(){	//Use ActiveRecord to Generate and Run SQL code
-		$record = new static::$modelNM();	//instantiate new object
-		$record->id = 11;
-		$record->email = 'kzzz@njit.edu';
-		$record->fname = "Kan";
-		$record->lname = "Zhang";
-		$record->phone = "44144414";
-		$record->birthday = "1800-01-01";
-		$record->gender = "male";
-		$record->password = "31s";
-		$record->GoFunction("Update");	//Run Update() in modol class and echo success or not
-		return self::showData();	//return display html table code from ShowData	
-	}
-
-	final static public function SQLInsert(){	//Use ActiveRecord to Generate and Run SQL code
-		$record = new static::$modelNM();	//instantiate new object
-		$record->id = 7;	//Will be UNSET() in object
-		$record->email = 'kel@njit.edu';
-		$record->fname = "Dalven";
-		$record->lname = "Kelwen";
-		$record->phone = "44144414";
-		$record->birthday = "1994-01-01";
-		$record->gender = "male";
-		$record->password = "31s";
-		$record->GoFunction("Insert");	//Run Insert() in modol class and echo success or not
-		return self::showData();	//return display html table code from ShowData
-	}
-
-	final static public function Session_Destroy(){
-		session_destroy();
-	}
-
-}
-
-class accounts extends collections{
-	protected static $modelNM = "account";
-}
-
-class todos extends collections{
-
-	protected static $modelNM = "todo";
-}
+//to get credit for using this as MVC you must rewrite what I give and improve it.
+//  A good way to improve it is namespaces and making the scope of properties and functions to be correctly private, public, or protected
+//there are notes throughout the code on improvements.  YOu can also correctly apply abstract and final
+//you can also look for lines that can be removed by just doing it in the return
+//it shouldn't be too hard to namespace and autoload
+//namespaces are really needed because your collection and controller classes for todos and accounts are called the same thing.
 
 
-abstract class model{
-	final public function GoFunction($action){	//Call function to Compile and Run SQL code, echo operation state
-		$conn = db\Database::connect();
-		if($conn){	//Do remains after connect
-			$content = get_object_vars($this);	//get all variable in child class
-			$Scode = $this->$action($content);
-			$launchcode = $conn->prepare($Scode); 
-			$Result = $launchcode->execute();
-			$Result = ($Result = 1) ? " Successful " : " Error ";
-			echo "SQL Code : </br>" . $Scode . "<hr>" . $action . " Operation " . $Result . "<hr>";
-		}		
-	}
+//IMPORTANT:  YOUR ACTIVE RECORD collection CLASSES  (task/account) WILL CONFLICT WITH THE CONTROLER CLASS HERE.
+//You can use namespaces or rename the controller classes, which will change your url parameter for page
 
-	final private function Insert($content) {	//Generate Insert Code with variable in child class
-	unset($content['id']);
-	$insertInto = "INSERT INTO " . get_called_class() . "s (";
-	$Keystring = implode(',', array_keys($content)) . ") ";	//implode array to string
-	$valuestring = implode("','", $content);
-	$Scode = $insertInto . $Keystring . "VALUES ('" . $valuestring . "');";
-	return $Scode;
-	}
+//routes are used to match the http request with the controller and method name that are called for that request / route.
+//In this program the page parameter matches the controller and the action parameter matches the method on the conroller.
+//Examples:
 
-	final private function Update($content) {	//Generate Update Code with variable in child class
-	$where = " WHERE id = " . $content['id'];
-	unset($content['id']);
-	$update = "UPDATE " . get_called_class() . "s SET ";
-	foreach ($content as $key => $value)	//find variable with value to update
-		$update .= ($value !== Null) ? " $key = \"$value\", " : "";
-	$update = substr($update, 0, -2);
-	$Scode = $update . $where;		//cut its last string of ","
-	return $Scode;
-	}
+//  index.php?page=todos&action=show specifies the todos collection class and the show method/function
 
-	final private function Delete($content) {	//Generate Delete Code with variable in child class
-	$where = " WHERE";
-	foreach ($content as $key => $value)	//find variable with value to designate deleting line
-		$where .= ($value !== Null) ? " $key = \"$value\" AND" : "";
-	$where = substr($where, 0, -4);		//cut its last string of "and"
-	$Scode = "DELETE FROM " .  get_called_class() . "s" . $where . ";";
-	return $Scode;
-	}
 
-	final public function addhashpassword($password) {
-		$options = ['cost' => 11, 'salt' => mcrypt_create_iv(22, MCRYPT_DEV_URANDOM),];
-		$hashedpwd = password_hash($password, PASSWORD_BCRYPT, $options);
-		$this->password = $hashedpwd;
-	}
-}
+//  GET requests to show the  form for new todos should go to index.php?page=todos&action=create and show a form for a new todoItem
+//  POST requests to create todos should go to index.php?page=todos&action=store and would be inserted into the database
+//  GET requests to show the update form todos should go to index.php?page=todos&action=edit&id=(todoItem ID) and would show an update form
+//  POST requests to update todos should go to index.php?page=todos&action=store&id=(todoItem ID) and would be update in the database
+//  For delete you should put a delete button within a new form below the edit form that has a method post and action of index.php?page=todos&action=delete&id=(todoItem ID)
 
-class account extends model{	//Variables of table accounts 
-	public $id;
-	public $username;
-	public $password;
-	public $fname;
-	public $lname;
-	public $gender;
-	public $birthday;
-	public $phone;
-	public $email;
-}
+//You can use the accounts controller for handling user login, user registration, showing the profile, editing the profile, and logout
+//Login should hash the password and compare it to the saved password hash
+//registration should hash the password and insert the hashed password with the user record.  You should not store clear passwords in a database
 
-class todo extends model{	//Variables of table todos
-	public $id;
-	public $owneremail;
-	public $ownerid;
-	public $createddate;
-	public $duedate;
-	public $message;
-	public $isdone;
-}
+//for the todos list page you need to make a table that has links to each item.
+//  Like:  index.php?page=todos&action=show&id=1  this would show the to-do item with a link to the edit form.
+//  you could put your delete on the to_do item view or the edit form, the above still applies.
+
+
+
+
+?>
