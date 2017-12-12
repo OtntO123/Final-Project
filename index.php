@@ -1,5 +1,5 @@
 <?php
-session_start();
+//session_start();
 
 if(1) {
 	echo "METHOD ";
@@ -27,7 +27,7 @@ include_once "autoload.php";
 include_once "DatabaseConfig.php";
 
 //this starts the program as a static.  Start tracing the program from here following the classes and methods being called
-$response = http\processRequest::createResponse();
+//$response = http\processRequest::createResponse();
 //read the notes below
 
 
