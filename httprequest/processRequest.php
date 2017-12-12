@@ -1,6 +1,4 @@
-<?php
-
-namespace http;
+<?php	namespace httprequest;
 
 //by using the use here you don't have to put http on each class in that namespace
 
@@ -22,7 +20,7 @@ class processRequest
 		$request_method = request::getRequestMethod();
 		$page = request::getPage();
 		$action = request::getAction();
-//echo $request_method . " " . $page . " " . $action . "<br>";
+echo $request_method . " " . $page . " " . $action . "<br>";
 		return self::sendroutefortest($request_method, $page, $action);
         //these are helpful for figuring out the action and method being requested
         //echo 'Action: ' . $action . '</br>';

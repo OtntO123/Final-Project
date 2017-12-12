@@ -1,6 +1,4 @@
-<?php
-
-namespace http;
+<?php	namespace httprequest;
 
 class request
 {

@@ -1,25 +1,16 @@
 <!doctype html>
 
-<html lang="en">
+<html lang='en'>
 <head>
-    <meta charset="utf-8">
-
-    <title>The HTML5 Herald</title>
-    <meta name="description" content="The HTML5 Herald">
-    <meta name="author" content="SitePoint">
-
-    <link rel="stylesheet" href="css/styles.css?v=1.0">
-
-    <!--[if lt IE 9]>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
-    <![endif]-->
+	<meta charset='utf-8'>
+	<title>Task system</title>
+	<meta name='description' content='Sql Active Record'>
+	<meta name='author' content='Kan'>
+	<link rel='stylesheet' href='utility/styles.css?v=1.0'>
 </head>
 
 <body>
-
 <h1><?php echo $data ?></h1>
-
-
-<script src="js/scripts.js"></script>
 </body>
+
 </html>

@@ -1,9 +1,8 @@
-<?php	namespace database;
-use \PDO;
+<?php	namespace htmlrequest;	use \PDO;
 
 class Database {
 
-	protected static $conn;
+	static private $conn;
 
 	static public function connect() {	//check whether $conn instantiated and instantiate it
 		if(!self::$conn){
@@ -12,7 +11,7 @@ class Database {
 		return self::$conn;
 	}
 
-	private function __construct() {	//Set PDO object and Test connectivity
+	function __construct() {	//Set PDO object and Test connectivity
 		try {
 			self::$conn = new PDO(databasesoftware . ':host=' . hostwebsite .';dbname=' . database, username, password);
 			self::$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );

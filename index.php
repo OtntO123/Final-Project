@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-if(0) {
+if(1) {
 	echo "METHOD ";
 	print_r($_SERVER['REQUEST_METHOD']);
 	echo "<BR> POST ";
@@ -24,7 +24,7 @@ if(0) {
 include_once "autoload.php";
 
 //put your database credentials here
-include_once "database.php";
+include_once "DatabaseConfig.php";
 
 //this starts the program as a static.  Start tracing the program from here following the classes and methods being called
 $response = http\processRequest::createResponse();

@@ -16,8 +16,8 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 
 	final static public function EditProfile(){	//Use ActiveRecord to Generate and Run SQL code
 
-		$wr = static::validation();
 		$record = new static::$modelNM();	//instantiate new object
+		$wr = $record->validation();
 		$record->id = $_SESSION["UserID"];
 		$record->username = $_POST["username"];
 		$record->fname = $_POST["fname"];
@@ -45,9 +45,8 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 	}
 
 	final static public function Edittask(){	//Use ActiveRecord to Generate and Run SQL code
-
-		$wr = static::validationB();
 		$record = new static::$modelNM();	//instantiate new object
+		$wr = $record->validation();
 		$record->id = $_SESSION["UserID"];
 		$record->owneremail = $_POST["owneremail"];
 		$record->ownerid = $_POST["ownerid"];
@@ -68,51 +67,14 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 	}
 
 
-	final static public function validation() {
-		$wr = "";
-		if(strlen($_POST["password"]) < 6) {
-			$wr .= "Password should at least be more than 6 number.<br>";
-		}
 
-		if(!preg_match("/[a-z]/i", $_POST["username"])) {
-			$wr .= "Username at least contain 1 letter.<br>";
-		}
 
-		if(!preg_match("/[a-z]/i", $_POST["fname"]) && !preg_match("/[a-z]/i", $_POST["lname"])) {
-			$wr .= "First or Last Name at least contain 1 letter.<br>";
-		}
-		
-		if($_POST["email"] != "") {
-			if (!filter_var($_POST["email"], FILTER_VALIDATE_EMAIL)) {
-				$wr .= "Invalid email format.<br>"; 
-			}
-		}
-		return $wr;
-	}
-
-	final static public function validationB() {
-		$wr = "";
-		if(strlen($_POST["ownerid"]) > 10) {
-			$wr .= "ownerid can't be more than 10 number.<br>";
-		}
-		
-		if($_POST["ownerid"] == "") {
-			$wr .= "There should be Ownerid";
-		}
-
-		if($_POST["owneremail"] != "") {
-			if (!filter_var($_POST["owneremail"], FILTER_VALIDATE_EMAIL)) {
-				$wr .= "Invalid email format.<br>"; 
-			}
-		}
-		return $wr;
-	}
 
 
 	final static public function CreateUser(){	//Use ActiveRecord to Generate and Run SQL code		
 		
-		$wr = static::validation();
 		$record = new static::$modelNM();	//instantiate new object
+		$wr = $record->validation();
 		$record->username = $_POST["username"];
 		$record->fname = $_POST["fname"];
 		$record->lname = $_POST["lname"];
@@ -136,6 +98,31 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 		setcookie("Username", $_POST["username"], time() + (86400 * 30), "/");
 		return 1;	//return display html table code from ShowData
 	}
+
+
+	final static public function Createtask(){	//Use ActiveRecord to Generate and Run SQL code
+		$record = new static::$modelNM();	//instantiate new object
+		$wr = $record->validation();
+		$record->id = $_SESSION["UserID"];
+		$record->owneremail = $_POST["owneremail"];
+		$record->ownerid = $_POST["ownerid"];
+		$record->createddate = $_POST["createddate"];
+		$record->duedate = $_POST["duedate"];
+		$record->message = $_POST["message"];
+		$record->isdone = $_POST["isdone"];
+		
+		if($wr != "") {
+			echo $wr;
+			return NULL;
+		} else {
+			//$_SESSION["Temprecord"] = NULL;
+		}
+		
+	
+		$record->GoFunction("Insert");	//Run Insert() in modol class and echo success or not
+		return 1;	//return display html table code from ShowData		
+	}
+
 
 	final static public function Login(){
 
@@ -192,28 +179,7 @@ abstract class collections{	//Save functions of SQL Operation by ActiveRecord
 		return self::showData();	//return display html table code from ShowData	
 	}
 
-	final static public function Createtask(){	//Use ActiveRecord to Generate and Run SQL code
-		$wr = static::validationB();
-		$record = new static::$modelNM();	//instantiate new object
-		$record->id = $_SESSION["UserID"];
-		$record->owneremail = $_POST["owneremail"];
-		$record->ownerid = $_POST["ownerid"];
-		$record->createddate = $_POST["createddate"];
-		$record->duedate = $_POST["duedate"];
-		$record->message = $_POST["message"];
-		$record->isdone = $_POST["isdone"];
-		
-		if($wr != "") {
-			echo $wr;
-			return NULL;
-		} else {
-			//$_SESSION["Temprecord"] = NULL;
-		}
-		
-	
-		$record->GoFunction("Insert");	//Run Insert() in modol class and echo success or not
-		return 1;	//return display html table code from ShowData		
-	}
+
 
 	final static public function Session_Destroy(){
 		session_destroy();
