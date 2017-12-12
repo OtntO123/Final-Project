@@ -19,11 +19,10 @@ class processRequest
 	{
 
 	//this is a helper function that needs to be improved because it does too much.  I will look for this in grading
-
 		$request_method = request::getRequestMethod();
 		$page = request::getPage();
 		$action = request::getAction();
-echo $request_method . " " . $page . " " . $action . "<br>";
+//echo $request_method . " " . $page . " " . $action . "<br>";
 		return self::sendroutefortest($request_method, $page, $action);
         //these are helpful for figuring out the action and method being requested
         //echo 'Action: ' . $action . '</br>';
@@ -78,5 +77,4 @@ echo $request_method . " " . $page . " " . $action . "<br>";
 		//I use a static for the controller because it doesn't have any properties
 		$controller_name::$controller_method();
 	}
-
 }

@@ -1,8 +1,8 @@
-<?php	namespace tb;
+<?php	namespace utility;
 
 class table {
 	static public function tablecontect($tabl, $tablename) {	//display result within table function
-		$str = "<div><table style='width:50%'><caption>" . $tablename . "</caption>";
+		$str = "<div><table style='width:100%'><caption>" . $tablename . "</caption>";
 		foreach($tabl as $i => $k) {	
 			$str .= "<tr>";
 			if ($k == $tabl[0]) {	//first line of type name

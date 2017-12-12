@@ -38,15 +38,16 @@ class homepageController extends http\controller
 //template data contains what will show up in the $data variable in the homepage template
 //the name of the template 'homepage' becomes 'homepage.php' in the pages directory
 	//$sessionID = http\request::getSession("UserID");
+
 	if(isset($_GET["submit"]) == "UnLog") {
-		header("Location: index.php");
-	}	
-	if(isset($_GET["submit"]) == "UnLog") {
-		$_SESSION["UserID"] = "";
+		$_SESSION["UserID"] = NULL;
+		header('Location: index.php');
 	}
+
 	$templateData[] = http\request::getCookie("Username");
-	$templateData[] = http\request::ExcalmationUserIDSession();
-	$templateData[] = http\request::UserIDSession();
+	$templateData["!issetSessionUserID"] = http\request::ExcalmationUserIDSession();
+	$templateData["issetSessionUserID"] = http\request::UserIDSession();
+	$templateData["UserID"] = http\request::getSessionUserID();
         self::getTemplate('homepage', $templateData);
     }
 

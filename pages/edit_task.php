@@ -1,6 +1,23 @@
-put a page with in a form to edit a task and have a delete button in another form to delete
+<?php if(get_class() == null) {header('Location: /~kz233/mvc-mvc2/index.php');} ?>
+<!doctype html>
 
-<form action="index.php?page=tasks&action=delete&id=<?php $data['id'] ?> " method="post" id="form1">
-    <button type="submit" form="form1" value="delete">Delete</button>
-</form>
-
+<html lang='en'>
+<head>
+	<meta charset='utf-8'>
+	<title>Task system</title>
+	<meta name='description' content='Sql Active Record'>
+	<meta name='author' content='Kan'>
+	<link rel='stylesheet' href='css/styles.css?v=1.0'>
+</head>
+<body>
+	<form action="index.php" method="post" enctype="multipart/form-data">
+		<p>
+		<?php foreach ($data["outputlabel"] as $key => $str) echo $str . "<br>";?></p>
+		<input type="submit" value="Save Setting" name="submit">
+		<input type="hidden" name="page" value="tasks">
+		<input type="hidden" name="action" value="edit">
+		<input type="reset">
+		</p>
+	</form>
+</body>
+</html>

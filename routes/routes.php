@@ -18,6 +18,10 @@ class routes
 	$this->routes[] = routes::create('POST','register','accounts','accountsController','store');
 	$this->routes[] = routes::create('GET','show','tasks','tasksController','show');
 	$this->routes[] = routes::create('GET','all','tasks','tasksController','all');
+	$this->routes[] = routes::create('GET','edit','tasks','tasksController','edit');
+	$this->routes[] = routes::create('GET','create','tasks','tasksController','create');
+	$this->routes[] = routes::create('POST','edit','tasks','tasksController','save');
+	$this->routes[] = routes::create('POST','create','tasks','tasksController','store');
 	$this->routes[] = routes::create('POST','delete','tasks','tasksController','delete');
 	}
 	

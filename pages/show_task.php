@@ -1,34 +1,40 @@
+<?php if(get_class() == null) {header('Location: /~kz233/mvc-mvc2/index.php');} ?>
 <!doctype html>
 
-<html lang="en">
+<html lang='en'>
 <head>
-    <meta charset="utf-8">
-
-    <title>The HTML5 Herald</title>
-    <meta name="description" content="The HTML5 Herald">
-    <meta name="author" content="SitePoint">
-
-    <link rel="stylesheet" href="css/styles.css?v=1.0">
-
-    <!--[if lt IE 9]>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
-    <![endif]-->
+	<meta charset='utf-8'>
+	<title>Task system</title>
+	<meta name='description' content='Sql Active Record'>
+	<meta name='author' content='Kan'>
+	<link rel='stylesheet' href='css/styles.css?v=1.0'>
 </head>
-
 <body>
+	<form action="index.php" method="get" enctype="multipart/form-data" style="display:<?php echo $data['istask']?>">
 
-<?php
-//this is how you print something  $data contains the record that was selected on the table.
+		<p>You have no task.
+		<input type="submit" value=" Create one!" name="submit">
+		<input type="hidden" name="page" value="tasks">
+		<input type="hidden" name="action" value="create">
+		</p>
+	</form>
 
-print_r($data);
-?>
-<form action="index.php?page=tasks&action=delete&id=<?php echo $data->id; ?> " method="post" id="form1">
-    <button type="submit" form="form1" value="delete">Delete</button>
-</form>
+	<form action="index.php" method="get" enctype="multipart/form-data" style="display:<?php echo $data['!istask']?>">
+		<input type="hidden" name="page" value="tasks">
+		<input type="hidden" name="action" value="edit">
+		<input type="submit" value="Edit My Task" name="submit">
+	</form>
 
+	<form action="index.php" method="post" enctype="multipart/form-data" style="display:<?php echo $data['!istask']?>">
+		<input type="hidden" name="page" value="tasks">
+		<input type="hidden" name="action" value="delete">
+		<input type="submit" value="Delete My Task" name="submit">
+	</form>
 
-
-
-<script src="js/scripts.js"></script>
+	<form action="index.php" method="get" enctype="multipart/form-data" style="display:<?php echo $data['!istask']?>">
+		<input type="hidden" name="page" value="accounts">
+		<input type="hidden" name="action" value="show">
+		<input type="submit" value="Back To My Account" name="submit">
+	</form>
 </body>
 </html>

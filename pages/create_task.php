@@ -11,13 +11,13 @@
 </head>
 <body>
 	<form action="index.php" method="post" enctype="multipart/form-data">
-
-		<p><?php foreach ($data as $key => $str) echo $str . "<br>";?></p>
-
-		<input type="submit" value="Create An Account" name="submit">
-		<input type="hidden" name="page" value="accounts">
-		<input type="hidden" name="action" value="register">
+		<p>
+		<?php foreach ($data["outputlabel"] as $key => $str) echo $str . "<br>";?></p>
+		<input type="submit" value="Create a task" name="submit">
+		<input type="hidden" name="page" value="tasks">
+		<input type="hidden" name="action" value="create">
 		<input type="reset">
+		</p>
 	</form>
 </body>
 </html>

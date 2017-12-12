@@ -9,6 +9,14 @@ class request
 		return $val;
 	}	
 	
+	static public function BoolToStyle_yesORnone($bool) {
+		if($bool) {
+			return "yes";
+		} else {
+			return "none";
+		}
+	}
+
 	static public function UserIDSession() {
 		$bool = "none";
 		if(isset($_SESSION["UserID"])) {
@@ -32,6 +40,11 @@ class request
 
 	static public function getSession($var) {
 		$val = (isset($_SESSION[$var])) ? $_SESSION[$var] : '';
+		return $val;
+	}
+
+	static public function getSessionUserID() {
+		$val = self::getSession("UserID");
 		return $val;
 	}
 

@@ -10,6 +10,8 @@ if(0) {
 	print_r($_GET);
 	echo "<BR> SESSION ";
 	print_r($_SESSION);
+//	echo "<BR> COOKIES ";
+//	print_r($_COOKIE);
 	echo "<BR>";
 	//turn on debugging messages
 	ini_set('display_errors', 'On');

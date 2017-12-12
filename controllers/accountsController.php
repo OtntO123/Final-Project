@@ -6,11 +6,10 @@ class accountsController extends http\controller
 
     //each method in the controller is named an action.
     //to call the show function the url is index.php?page=task&action=show
-    public static function show()
-    {
-        $record = accounts::findOne($_REQUEST['id']);
-        self::getTemplate('show_account', $record);
-    }
+	public static function show()
+	{		
+            header("Location: index.php");
+	}
 
     //to call the show function the url is index.php?page=accounts&action=all
 
@@ -27,23 +26,37 @@ class accountsController extends http\controller
     //you should check the notes on the project posted in moodle for how to use active record here
 
     //this is to register an account i.e. insert a new account
-    public static function register()
-    {
+	public static function register() {
         //https://www.sitepoint.com/why-you-should-use-bcrypt-to-hash-stored-passwords/
         //USE THE ABOVE TO SEE HOW TO USE Bcrypt
-        self::getTemplate('register');
-    }
+		$inputlabel = array ("Username", "Password", "First Name", "Last Name", "Gender", "Birthday", "Phone Number", "Email Address");
+		$inputtype = array ("text", "password", "text", "text", "text", "date", "number", "email");
+		$inputname = array ("username", "password", "fname", "lname", "gender", "birthday", "phone", "email");
+		$inputstr = $inputlabel;
+		$rec = new account();
+
+		foreach ($inputname as $key => $val) {
+			$recval = $rec->$val;
+			$inputstr[$key] .= " <input type = \"$inputtype[$key]\" value = \"$recval\" name = \"$inputname[$key]\"> ";
+		}
+  		self::getTemplate('register', $inputstr);
+	}
 
     //this is the function to save the user the new user for registration
-    public static function store()
 
-    {
-        $user = accounts::findUserbyEmail($_REQUEST['email']);
+	public static function store() {
+		$bool = accounts::CreateUser();
+		if ($bool == 1) {
+			accounts::Login();
+		}
+		
+
+/*		$user = accounts::findUserbyEmail($_REQUEST['email']);
 
 
-        if ($user == FALSE) {
-            $user = new account();
-            $user->email = $_POST['email'];
+		if ($user == FALSE) {
+			$user = new account();
+			$user->email = $_POST['email'];
             $user->fname = $_POST['fname'];
             $user->lname = $_POST['lname'];
             $user->phone = $_POST['phone'];
@@ -69,36 +82,38 @@ class accountsController extends http\controller
             self::getTemplate('error', $error);
 
         }
+*/
+	}
 
-    }
+	public static function edit() {
+		$inputlabel = array ("Username", "Password", "First Name", "Last Name", "Gender", "Birthday", "Phone Number", "Email Address");
+		$inputtype = array ("text", "password", "text", "text", "text", "date", "number", "email");
+		$inputname = array ("username", "password", "fname", "lname", "gender", "birthday", "phone", "email");
+		$inputstr = $inputlabel;
+		$rec = accounts::ShowData($_SESSION["UserID"]);
+		$rec[0]->password = "";
+		//print_r($rec[0]);
+		foreach ($inputname as $key => $val) {
+			$recval = $rec[0]->$val;
+			$inputstr[$key] .= " <input type = \"$inputtype[$key]\" value = \"$recval\" name = \"$inputname[$key]\"> ";
+		}
+		self::getTemplate('edit_account', $inputstr);
+}
 
-    public static function edit()
-    {
-        $record = accounts::findOne($_REQUEST['id']);
 
-        self::getTemplate('edit_account', $record);
-
-    }
 //this is used to save the update form data
-    public static function save() {
-        $user = accounts::findOne($_REQUEST['id']);
-
-        $user->email = $_POST['email'];
-        $user->fname = $_POST['fname'];
-        $user->lname = $_POST['lname'];
-        $user->phone = $_POST['phone'];
-        $user->birthday = $_POST['birthday'];
-        $user->gender = $_POST['gender'];
-        $user->save();
-        header("Location: index.php?page=accounts&action=all");
-
-    }
+	public static function save() {
+		$bool = accounts::EditProfile();
+		if ($bool == 1) {
+			accounts::Login();
+		}
+	}
 
     public static function delete() {
-
-        $record = accounts::findOne($_REQUEST['id']);
-        $record->delete();
-        header("Location: index.php?page=accounts&action=all");
+		$id = http\request::getSessionUserID();
+		accounts::SQLDelete($id);
+		session_destroy();
+		header("Location: index.php");
     }
 
     //this is to login, here is where you find the account and allow login or deny.
@@ -112,6 +127,7 @@ class accountsController extends http\controller
         //        $record = accounts::findUser($_POST['email']);
 
 	accounts::Login();
+	
 /*
         $user = accounts::findUserbyEmail($_REQUEST['email']);
 

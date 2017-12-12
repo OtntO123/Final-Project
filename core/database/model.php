@@ -4,7 +4,7 @@ use http\controller;
 
 abstract class model{
 	public function GoFunction($action){	//Call function to Compile and Run SQL code, echo operation state
-		$conn = db\Database::connect();
+		$conn = Database::connect();
 		if($conn){	//Do remains after connect
 			$content = get_object_vars($this);	//get all variable in child class
 			$Scode = $this->$action($content);
@@ -16,7 +16,7 @@ abstract class model{
 	}
 
 	private function Insert($content) {	//Generate Insert Code with variable in child class
-	unset($content['id']);
+	//unset($content['id']);
 	$insertInto = "INSERT INTO " . get_called_class() . "s (";
 	$Keystring = implode(',', array_keys($content)) . ") ";	//implode array to string
 	$valuestring = implode("','", $content);
