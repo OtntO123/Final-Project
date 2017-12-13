@@ -1,108 +1,103 @@
 <?php namespace models;
 
 abstract class model{
-	public $className;
 	public $selectID;
-	public $deleteID;
 	public $selectUser;
-	protected $Allobject;
+	public $deleteID;
+	private $className;
+	private $Allobject;
 	private $Scode;
-	protected 
+	private $conn;
+	private $launchcode;
+	protected $Result;
 	
 	public function Go() {	//Call function to Compile and Run SQL code, echo operation state
-		$Result = array();
-		$statement = $this->validated();
+		$this->validate();
 		if(!($this->validated)){
-			$Result["statement"] = $statement;
-			$Result["isOK"] = FALSE;
+			$this->Result["isOK"] = FALSE;
 			return $Result;
 		}
 
 		$conn = Database::connect();
 		if($conn == NULL){	//Do remains after connect
-			$Result["isOK"] = FALSE;
+			$this->Result["isOK"] = FALSE;
 			return $Result;
 		}
 
 		//getAllObject();	//get all variable in child class
-		setClassName();
+		$this->setClassName();
 
-		if($this->id = '') {
-			$this->update();
+		$this->setScodeAndExe();
+		return $Result;
+	}
+
+	private function setScodeAndExe() {
+		if(check_isset("selectID")) {
+			$this->selectAllWhen("id", "selectID");
+			break;
+		}
+		if(check_isset("selectUser")) {
+			$this->selectAllWhen("username", "selectUser");
+			break;
+		}
+		if(check_isset("deleteID")) {
+			$this->Delete();
+			break;
+		}
+
+		$this->sethashpassword();
+		if(check_isset("id")) {			
+			$this->Update();
+			break;
 		} else {
-			$this->insert();
-		}
-
-		$launchcode = $conn->prepare($this->Scode); 
-		$Result = $launchcode->execute();
-		$Result = ($Result = 1) ? " Successful " : " Error ";
-		return "SQL Code : </br>" . $Scode . "<hr>" . $action . " Operation " . $Result . "<hr>";
-	}
-
-	private function setScode() {
-		if(isselectID()) {
-			$this->FindID()
-			break;
-		}
-		if(isselectUser()) {
-			$this->FindUserforPassword()
-			break;
-		}
-		if(isselectID()) {
-			$this->FindID()
-			break;
-		}
-		if(isselectID()) {
-			$this->FindID()
-			break;
+			$this->Insert();
+			$this->Result["Record"] = $this->id;
 		}
 	}
 
-	private function FindID() {
-	$this->Scode = "SELECT * FROM " . $this->className . " WHERE id=\"" . $this->id . "\"";
-
-	}
-
-	private function FindUserforPassword() {
-
-	}
-
-	private function isselectID() {
-		if(is_null($this->selectID)) {
+	private function check_isset($var) {
+		if(!is_null($this->$var)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	private function isselectUser() {
-		if(is_null($this->selectUser))
-			return true;
+	private function PrepareBindExe($parameters) {
+		$this->launchcode = $this->conn->prepare($this->Scode);				
+
+		foreach ($parameters as $key => $value) {
+			$this->launchcode->bindParam(":$key", $this->$key);
+		}
+
+		$this->Result["isOK"] = $this->launchcode->execute();
+	}
+
+	private function selectAllWhen($where, $Parameter) {
+		$Parameter = (array) $Parameter;
+		$this->Scode = "SELECT * FROM " . $this->className . " WHERE " . $where . " = :" . $Parameter[0];
+		$this->PrepareBindExe($Parameter);
+		$this->setFetchData();
+	}
+
+	private function setFetchData() {
+		if ($this->launchcode->rowCount() > 0) {
+			$this->launchcode->setFetchMode(\PDO::FETCH_CLASS, $this->classname);
+			$this->Result["Record"] = $this->launchcode->fetchAll();
+			$this->Result["isOK"] = TRUE;
 		} else {
-			return false;
+			$this->Result["isOK"] = FALSE;
 		}
 	}
 
-	private function isupdate() {
-		if(is_null($this->id))
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	protected function executeScode() {
-		
-	}
-
-	public function getAllObject() {
+	private function getAllObject() {
 		$this->emptyAllobject();
-		return $this->Allobject
+		return $this->Allobject;
 	}
 
 	private function emptyAllobject() {
 		if(empty($Allobject)) {
-			setAllObject();
+			$this->setAllObject();
 		}
 	}
 
@@ -111,52 +106,71 @@ abstract class model{
 		unset($Allobject["validated"]);
 		unset($Allobject["className"]);
 		unset($Allobject["Allobject"]);
-		unset($Allobject["Scode"]);
 		unset($Allobject["selectID"]);
-		unset($Allobject["deleteID"];
-		unset($Allobject["selectUser"];
+		unset($Allobject["selectUser"]);
+		unset($Allobject["deleteID"]);
+		unset($Allobject["Scode"]);
+		unset($Allobject["conn"]);
+		unset($Allobject["launchcode"]);
+		unset($Allobject["Result"]);
 		$this->Allobject = $Allobject;
-	}
+	}	
 
 	private function setClassName() {
 		$this->className = get_called_class();
 	}
-	
 
-
-
-	private function Insert($content) {	//Generate Insert Code with variable in child class
-	//unset($content['id']);
-	$insertInto = "INSERT INTO " . get_called_class() . " (";
-	$Keystring = implode(',', array_keys($content)) . ") ";	//implode array to string
-	$valuestring = implode("','", $content);
-	$Scode = $insertInto . $Keystring . "VALUES ('" . $valuestring . "');";
-	return $Scode;
+	private function getkeysinAllobject() {		
+		return  array_keys($this->Allobject);		
 	}
 
-	private function Update($content) {	//Generate Update Code with variable in child class
-	$where = " WHERE id = " . $content['id'];
-	unset($content['id']);
-	$update = "UPDATE " . get_called_class() . "s SET ";
-	foreach ($content as $key => $value)	//find variable with value to update
-		$update .= ($value !== Null) ? " $key = \"$value\", " : "";
-	$update = substr($update, 0, -2);
-	$Scode = $update . $where;		//cut its last string of ","
-	return $Scode;
+
+	private function Insert() {	//Generate Insert Code with variable in child class
+		$parameters = $this->getkeysinAllobject();
+		unset($parameters['id']);
+		$str = $this->getStringOfkeys($parameters);
+		$this->Scode = "INSERT INTO " . get_called_class() . " (";
+		$this->Scode .= $str["key"] . ") ";	//implode array to string
+		$this->Scode .= "VALUES (" . $str[":key"] . ");";
+		$this->PrepareBindExe($parameters);
+		$this->id = $this->conn->lastInsertId();
+	}
+
+	private function getStringOfkeys($parameters) {
+		$str["keys"] = implodearraywithcomma($parameters);
+		$str[":keys"] = implode(', :', $parameters);
+		return $str; 
+	}
+
+	private function implodearraywithcomma($parameters) {
+		return implode(', ', $parameters);
+	}
+
+	private function Update() {	//Generate Update Code with variable in child class
+
+		$parameters = $this->getkeysinAllobject();
+		$this->Scode = "UPDATE " . get_called_class() . " SET (";
+		$this->Scode .= $this->getUpdateScode($parameters);
+		$this->Scode .= ") WHERE id = :id";
+		$this->PrepareBindExe($parameters);
+	}
+
+	private function getUpdateScode($parameters) {
+		unset($parameters["id"]);
+		foreach ($parameters as $key => $val) {
+			$parameters[$key] .= " = :" . $val;		
+		}
+		return implodearraywithcomma($parameters);
 	}
 
 	private function Delete($content) {	//Generate Delete Code with variable in child class
-	$where = " WHERE";
-	foreach ($content as $key => $value)	//find variable with value to designate deleting line
-		$where .= ($value !== Null) ? " $key = \"$value\" AND" : "";
-	$where = substr($where, 0, -4);		//cut its last string of "and"
-	$Scode = "DELETE FROM " .  get_called_class() . "s" . $where . ";";
-	return $Scode;
+		$parameters = array("deleteID");
+		$this->Scode = "DELETE FROM " .  get_called_class() . "WHERE id = :deleteID";
+		$this->PrepareBindExe($parameters);
 	}
 
-	public function addhashpassword($password) {
+	private function sethashpassword() {
 		$options = ['cost' => 11, 'salt' => mcrypt_create_iv(22, MCRYPT_DEV_URANDOM),];
-		$hashedpwd = password_hash($password, PASSWORD_BCRYPT, $options);
-		$this->password = $hashedpwd;
+		$this->password = password_hash($this->password, PASSWORD_BCRYPT, $options);
 	}
 }

@@ -12,7 +12,7 @@ final class todos extends model
 
 	protected $validated;
 
-	public function __construct($id = "", $owneremail = "", $ownerid = "", $createddate = "", $duedate = "", $message = "", $isdone = "") {
+	public function __construct($id = NULL, $owneremail = NULL, $ownerid = NULL, $createddate = NULL, $duedate = NULL, $message = NULL, $isdone = NULL) {
 		$this->id = $id;
 		$this->owneremail = $owneremail;
 		$this->ownerid = $ownerid;
@@ -20,31 +20,54 @@ final class todos extends model
 		$this->duedate = $duedate;
 		$this->message = $message;
 		$this->isdone = $isdone;
-		$this->className = 
-		$validated = FALSE;
 	}
 
 	protected function validate() {
-		$statement = "";
-
-		if($this->ownerid) == "") {
-			$statement .= "There should be a Ownerid";
-			if(strlen($this->ownerid) > 10) {
-				$statement .= "Ownerid can't be more than 10 number.<br>";
-				break;
-			}
-		}
-
-		if($this->owneremail != "") {
-			if (!filter_var($_POST["owneremail"], FILTER_VALIDATE_EMAIL)) {
-				$statement .= "Invalid email format.<br>";
-				break;
-			}
-		}
 
 		$this->validated = 1;
-		return $statement;
+		$this->Result["Record"] = "";
 
+		if($this->createddate == "") {
+			$this->Result["Record"] .= "There should be a createddate.<br>";
+			$this->validated = 0;
+		}
+
+		if($this->duedate == "") {
+			$this->Result["Record"] .= "There should be a duedate.<br>";
+			$this->validated = 0;
+		}
+		if($this->CheckDate($this->duedate)) {
+			$this->Result["Record"] .= "Invalid date format.<br>";
+			$this->validated = 0;
+		}
+
+		if($this->createddate == "") {
+			$this->Result["Record"] .= "There should be a createddate.<br>";
+			$this->validated = 0;
+		}
+		if($this->CheckDate($this->createddate)) {
+			$this->Result["Record"] .= "Invalid date format.<br>";
+			$this->validated = 0;
+		}
+
+
+		if($this->owneremail != "") {
+			if (!filter_var($this->owneremail, FILTER_VALIDATE_EMAIL)) {
+				$this->Result["Record"] .= "Invalid email format.<br>";
+				$this->validated = 0;
+			}
+		}
+
+		if(!is_bool($this->isdone)) {
+			$this->Result["Record"] .= "Invalid isdone format.<br>";
+			$this->validated = 0;
+		}
+	}
+
+	private function CheckDate($Date) {
+		if (DateTime::createFromFormat('Y-m-d G:i:s', $Date) == FALSE) {
+			return TRUE;
+		}
 	}
 
 }
