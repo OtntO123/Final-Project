@@ -20,27 +20,24 @@ final class todos extends model
 		$this->duedate = $duedate;
 		$this->message = $message;
 		$this->isdone = $isdone;
+		$this->className = "todos";
+		$this->setAllObject();
 	}
 
 	protected function validate() {
-
 		$this->validated = 1;
 		$this->Result["Record"] = "";
 
-		if($this->createddate == "") {
-			$this->Result["Record"] .= "There should be a createddate.<br>";
-			$this->validated = 0;
-		}
+		$this->checkcreateddate();
+		$this->checkduedate();
+		$this->checkcreateddate();
+		$this->checkowneremail();
+		//$this->checkid($this->id);
+		$this->checkid($this->ownerid);
+		$this->checkmessage();
+	}
 
-		if($this->duedate == "") {
-			$this->Result["Record"] .= "There should be a duedate.<br>";
-			$this->validated = 0;
-		}
-		if($this->CheckDate($this->duedate)) {
-			$this->Result["Record"] .= "Invalid date format.<br>";
-			$this->validated = 0;
-		}
-
+	private function checkcreateddate() {
 		if($this->createddate == "") {
 			$this->Result["Record"] .= "There should be a createddate.<br>";
 			$this->validated = 0;
@@ -49,26 +46,50 @@ final class todos extends model
 			$this->Result["Record"] .= "Invalid date format.<br>";
 			$this->validated = 0;
 		}
+	}
+
+	private function checkduedate() {
+		if($this->duedate == "") {
+			$this->Result["Record"] .= "There should be a duedate.<br>";
+			$this->validated = 0;
+		}
+		if($this->CheckDate($this->duedate)) {
+			$this->Result["Record"] .= "Invalid date format.<br>";
+			$this->validated = 0;
+		}
+	}
 
 
+	private function checkowneremail() {
 		if($this->owneremail != "") {
-			if (!filter_var($this->owneremail, FILTER_VALIDATE_EMAIL)) {
+			if (!filter_var($this->owneremail, FILTER_VALIDATE_EMAIL) or strlen($this->owneremail) > 30) {
 				$this->Result["Record"] .= "Invalid email format.<br>";
 				$this->validated = 0;
 			}
 		}
+	}
 
+	private function checkisdone() {
 		if(!is_bool($this->isdone)) {
 			$this->Result["Record"] .= "Invalid isdone format.<br>";
 			$this->validated = 0;
 		}
 	}
 
-	private function CheckDate($Date) {
-		if (DateTime::createFromFormat('Y-m-d G:i:s', $Date) == FALSE) {
-			return TRUE;
+	private function checkid($key) {
+		if(!Is_Numeric($key) or strlen($key) > 5) {
+			$this->Result["Record"] .= "Error: Have too much id in database or It is not number.<br>";
+			$this->validated = 0;
 		}
 	}
+
+	private function checkmessage() {
+		if(strlen($this->message) > 30) {
+			$this->Result["Record"] .= "Warning!!Message should be less than 30 characters!<br>";
+			$this->validated = 0;
+		}
+	}
+
 
 }
 

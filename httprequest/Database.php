@@ -1,4 +1,4 @@
-<?php	namespace htmlrequest;	use \PDO;
+<?php	namespace httprequest;
 
 class Database {
 
@@ -13,9 +13,9 @@ class Database {
 
 	function __construct() {	//Set PDO object and Test connectivity
 		try {
-			self::$conn = new PDO(databasesoftware . ':host=' . hostwebsite .';dbname=' . database, username, password);
-			self::$conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
-			//echo 'Connection Successful To Database.<hr>';
+			self::$conn = new \PDO(databasesoftware . ':host=' . hostwebsite .';dbname=' . database, username, password);
+			self::$conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
+			echo 'Connection Successful To Database.<hr>';
 		}
 		catch (PDOException $e) {
 			echo "Connection Error To Database: " . $e->getMessage() . "<hr>";

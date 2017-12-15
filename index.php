@@ -1,5 +1,9 @@
 <?php
 //session_start();
+$time_start = microtime(true);
+function Benchmark($time_start){
+	echo '<br><b>Total Execution Time:</b> ' . (microtime(true) - $time_start) * 1000000 . ' ms<br>';
+}
 
 if(1) {
 	echo "METHOD ";
@@ -25,9 +29,45 @@ include_once "autoload.php";
 
 //put your database credentials here
 include_once "DatabaseConfig.php";
+//$obj = new models\todos();
+//$obj -> deleteID =3;
+//$obj -> selectID = 3;
+//$obj -> selectUser = "11111a";
+/*
+//$obj -> id = 6;
+$obj -> username = "1131d1a";
+$obj -> password = "ii11515151";
+$obj -> fname = "iiiiii";
+$obj -> lname = "iiiiii";
+$obj -> gender = "Male";
+$obj -> birthday = "2017-02-10 91:99:90";
+$obj -> phone = 4124411444;
+$obj -> email = "eq@eqwed.c";
+*/
+$obj = new models\todos();
+$obj -> selectID = 5;
+$Result = $obj -> Go();
+var_dump( $Result["isOK"]);
+print_r($Result["Record"]);
 
+
+
+Benchmark($time_start);
+/*
+	public $id;
+	public $username;
+	public $password;
+	public $fname;
+	public $lname;
+	public $gender;
+	public $birthday;
+	public $phone;
+	public $email;
+
+
+*/
 //this starts the program as a static.  Start tracing the program from here following the classes and methods being called
-$response = http\processRequest::createResponse();
+//$response = http\processRequest::createResponse();
 //read the notes below
 
 
