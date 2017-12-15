@@ -1,41 +1,5 @@
 <?php	namespace httprequest;
-/*
 
-
-
-
-
-
-view:
-class{
-	private $model;
-	private $controller;
-}
-
-controller:
-class{
-	private $model;
-}
-
-model:
-class{
-public $id;
-public $...;
-...
-}
-
-...After get information from route:$tablename = "accounts/todos|homepage";
-$model = new models\$tablename();
-
-$controller = new controllers\$tablename($model);
-
-$view = new view($controller, $model); view htmlpage, table, 
-
-$controller->save();
-
-$view->output();
-
-*/
 //by using the use here you don't have to put http on each class in that namespace
 
 class processRequest
@@ -101,14 +65,22 @@ echo $request_method . " " . $page . " " . $action . "<br>";
 		$controller_name = $requested_route->controller;
 		//this determines the method to call for the controller
 		$controller_method = $requested_route->method;
-		self::StartCreateResponse($controller_name, $controller_method);
+		self::UsingMVCtoStartCreateResponse($controller_name, $controller_method);
 	}
 	
-	private static function StartCreateResponse($controller_name, $controller_method) {
+	private static function UsingMVCtoStartCreateResponse($controller_name, $controller_method) {
 		//these echo helps figure out the controller name and method
 		// echo $controller_name . '</br>';
 		// echo $controller_method . '</br>';
-		//I use a static for the controller because it doesn't have any properties
-		$controller_name::$controller_method();
+
+		$model = new models\$tablename();
+
+		$controller = new controllers\$tablename($model);
+
+		$view = new views\view($controller, $model);
+
+		$controller->$controller_method();
+
+		$view->output();
 	}
 }

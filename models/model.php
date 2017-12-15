@@ -12,10 +12,68 @@ abstract class model
 	private $launchcode;
 	protected $Result;
 	
+	public function getAllobject() {
+		return array_keys($this->Allobject);
+	}
+
+	protected function setAddResultRecord($record) {
+		$this->Result["Record"] .= $record;
+	}
+
+	protected function setResultRecord($record) {
+		$this->Result["Record"] = $record;
+	}
+
+	protected function setResultIsOK($isOK) {
+		$this->Result["isOK"] = $isOK;
+	}
+
+	protected function checkusername() {
+		if(!preg_match("/[a-z]/i", $this->username)) {
+			$this->setAddResultRecord("Username at least contain 1 letter.<br>");
+			$this->validated = 0;
+			return FALSE;
+		}
+		if(!$this->checkStrelenshorterthan($this->username, 20)) {
+			$this->setAddResultRecord("Username should be alphabetic and less than 20 letters.<br>");
+			$this->validated = 0;
+			return FALSE;
+		}
+		return TRUE;
+	}
+
+	protected function checkStrelenshorterthan($variable, $digit) {
+		if(strlen($variable) <= $digit) {
+			return TRUE;
+		} else {
+			return FALSE;
+		}
+	}
+
+	protected function checkIsnumber($variable) {
+		if(Is_Numeric($variable)) {
+			return TRUE;
+		} else {
+			return FALSE;
+		}
+	}
+
+	private function validateID($variable) {
+		$digit = 3;
+		if(!$this->checkIsnumber($this->$variable) or !$this->checkStrelenshorterthan($this->$variable, $digit)) {
+			$this->setAddResultRecord("Error ID is founded.<br>");
+			$this->validated = 0;
+			return FALSE;
+		}
+		return TRUE;
+	}
+
+
+
 	public function Go() {	//Call function to Compile and Run SQL code, echo operation state
 		$this->conn = \httprequest\Database::connect();
 		if($this->conn == NULL){	//Do remains after connect
-			$this->Result["isOK"] = FALSE;
+			$this->setResultIsOK(FALSE);
 			return $this->Result;
 		}
 
@@ -25,28 +83,42 @@ abstract class model
 
 	private function setScodeAndExe() {
 		//Execute Select or Delete SQL Command without check input validation
-		if($this->check_isset("selectID")) {
-			$this->selectAllWhen("id", "selectID");
-			return NULL;
-		}
-		if($this->check_isset("selectUser")) {
-			if($this->className == "todos") {
+		$SQLtype = "selectID";
+		if($this->check_isset($SQLtype)) {
+			if($this->validateID($SQLtype)) {
+				$this->selectAllWhen("id", $SQLtype);
 				return NULL;
 			}
-			$this->selectAllWhen("username", "selectUser");
-			return NULL;
 		}
-		if($this->check_isset("deleteID")) {
-			$this->Delete();
-			return NULL;
+
+		$SQLtype = "selectUser";
+		if($this->check_isset($SQLtype)) {
+			if($this->className == "todos") {
+				$this->setResultRecord("Error: TODOs have no USERNAME table.<br>");
+				$this->setResultIsOK(FALSE);
+				return NULL;
+			}
+			if($this->checkusername()) {
+				$this->selectAllWhen("username", $SQLtype);
+				return NULL;
+			}
 		}
+
+		$SQLtype = "deleteID";
+		if($this->check_isset($SQLtype)) {
+			if($this->validateID($SQLtype)) {
+				$this->Delete();
+				return NULL;
+			}
+		}
+
 /////////////////////////////////////////////////////////////////////
 
 		//Start Data validation before Execute Insert or Update SQL Command  
 		$this->validate();
 		if(!($this->validated)){
-			$this->Result["isOK"] = FALSE;
-			return $this->Result;
+			$this->setResultIsOK(FALSE);
+			return NULL;
 		}
 
 		$this->sethashpassword();
@@ -56,12 +128,14 @@ abstract class model
 			return NULL;
 		} else {
 			$this->Insert();
-			$this->Result["Record"] = $this->id;
+			$this->setResultRecord($this->id);
 			return NULL;
 		}
-		$this->Result["isOK"] = FALSE;
-		$this->Result["Record"] = "Execute Nothing.";
+		$this->setResultIsOK(FALSE);
+		$this->setResultRecord("Execute Nothing.");
 	}
+
+
 
 	private function check_isset($var) {
 		if(!is_null($this->$var)) {
@@ -77,7 +151,7 @@ abstract class model
 			$this->launchcode->bindParam(":$value", $this->$value);
 		}
 
-		$this->Result["isOK"] = $this->launchcode->execute();
+		$this->setResultIsOK($this->launchcode->execute());
 	}
 
 	protected function selectAllWhen($where, $Parameter) {
@@ -90,10 +164,11 @@ abstract class model
 	private function setFetchData() {
 		if ($this->launchcode->rowCount() > 0) {
 			$this->launchcode->setFetchMode(\PDO::FETCH_ASSOC);
-			$this->Result["Record"] = $this->launchcode->fetchAll();
-			$this->Result["isOK"] = TRUE;
+			$ResultArray = $this->launchcode->fetchAll();
+			$this->setResultRecord($ResultArray);
+			$this->setResultIsOK(TRUE);
 		} else {
-			$this->Result["isOK"] = FALSE;
+			$this->setResultIsOK(FALSE);
 		}
 	}
 

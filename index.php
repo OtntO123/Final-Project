@@ -2,7 +2,7 @@
 //session_start();
 $time_start = microtime(true);
 function Benchmark($time_start){
-	echo '<br><b>Total Execution Time:</b> ' . (microtime(true) - $time_start) * 1000000 . ' ms<br>';
+	echo '<br><b>Total Execution Time:</b> ' . (microtime(true) - $time_start) * 1000 . ' ms<br>';
 }
 
 if(1) {

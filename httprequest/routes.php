@@ -6,23 +6,23 @@ class routes
 
 	public function __construct() {
 	//create($http_method, $action, $page, $controller, $method)		
-	$this->routes[] = routes::create('GET','show','homepage','homepageController','show');
-	$this->routes[] = routes::create('POST','create','homepage','homepageController','create');
-	$this->routes[] = routes::create('GET','all','accounts','accountsController','all');
-	$this->routes[] = routes::create('GET','show','accounts','accountsController','show');
-	$this->routes[] = routes::create('GET','edit','accounts','accountsController','edit');
-	$this->routes[] = routes::create('GET','register','accounts','accountsController','register');
-	$this->routes[] = routes::create('POST','login','accounts','accountsController','login');
-	$this->routes[] = routes::create('POST','save','accounts','accountsController','save');
-	$this->routes[] = routes::create('POST','delete','accounts','accountsController','delete');
-	$this->routes[] = routes::create('POST','register','accounts','accountsController','store');
-	$this->routes[] = routes::create('GET','show','tasks','tasksController','show');
-	$this->routes[] = routes::create('GET','all','tasks','tasksController','all');
-	$this->routes[] = routes::create('GET','edit','tasks','tasksController','edit');
-	$this->routes[] = routes::create('GET','create','tasks','tasksController','create');
-	$this->routes[] = routes::create('POST','edit','tasks','tasksController','save');
-	$this->routes[] = routes::create('POST','create','tasks','tasksController','store');
-	$this->routes[] = routes::create('POST','delete','tasks','tasksController','delete');
+	$this->routes[] = routes::create('GET','show','homepage','homepage','show');
+	$this->routes[] = routes::create('POST','create','homepage','homepage','create');
+	$this->routes[] = routes::create('GET','all','accounts','accounts','all');
+	$this->routes[] = routes::create('GET','show','accounts','accounts','show');
+	$this->routes[] = routes::create('GET','edit','accounts','accounts','edit');
+	$this->routes[] = routes::create('GET','register','accounts','accounts','register');
+	$this->routes[] = routes::create('POST','login','accounts','accounts','login');
+	$this->routes[] = routes::create('POST','save','accounts','accounts','save');
+	$this->routes[] = routes::create('POST','delete','accounts','accounts','delete');
+	$this->routes[] = routes::create('POST','register','accounts','accounts','store');
+	$this->routes[] = routes::create('GET','show','tasks','todos','show');
+	$this->routes[] = routes::create('GET','all','tasks','todos','all');
+	$this->routes[] = routes::create('GET','edit','tasks','todos','edit');
+	$this->routes[] = routes::create('GET','create','tasks','todos','create');
+	$this->routes[] = routes::create('POST','edit','tasks','todos','save');
+	$this->routes[] = routes::create('POST','create','tasks','todos','store');
+	$this->routes[] = routes::create('POST','delete','tasks','todos','delete');
 	}
 	
 	public static function getRoutes()
