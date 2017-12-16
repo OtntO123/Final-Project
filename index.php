@@ -43,31 +43,18 @@ $obj -> gender = "Male";
 $obj -> birthday = "2017-02-10 91:99:90";
 $obj -> phone = 4124411444;
 $obj -> email = "eq@eqwed.c";
-*/
+
 $obj = new models\todos();
-$obj -> selectID = 5;
-$Result = $obj -> Go();
-var_dump( $Result["isOK"]);
+$Result = $obj -> getAllobject();
+print_r( $Result);
 print_r($Result["Record"]);
-
-
-
-Benchmark($time_start);
-/*
-	public $id;
-	public $username;
-	public $password;
-	public $fname;
-	public $lname;
-	public $gender;
-	public $birthday;
-	public $phone;
-	public $email;
-
-
 */
+
+
+$response = httprequest\processRequest::createResponse();
+
 //this starts the program as a static.  Start tracing the program from here following the classes and methods being called
-//$response = http\processRequest::createResponse();
+Benchmark($time_start);
 //read the notes below
 
 

@@ -12,16 +12,12 @@ final class todos extends model
 
 	protected $validated;
 
-	public function __construct($id = NULL, $owneremail = NULL, $ownerid = NULL, $createddate = NULL, $duedate = NULL, $message = NULL, $isdone = NULL) {
-		$this->id = $id;
-		$this->owneremail = $owneremail;
-		$this->ownerid = $ownerid;
-		$this->createddate = $createddate;
-		$this->duedate = $duedate;
-		$this->message = $message;
-		$this->isdone = $isdone;
-		$this->className = "todos";
-		$this->setAllObject();
+	protected function setAllObject() {
+		$Allobject = get_object_vars($this);
+		unset($Allobject["validated"]);
+		unset($Allobject["Allobject"]);
+		unset($Allobject["Result"]);
+		$this->Allobject = $Allobject;
 	}
 
 	protected function validate() {
@@ -30,7 +26,6 @@ final class todos extends model
 		$this->checkduedate();
 		$this->checkcreateddate();
 		$this->checkowneremail();
-		//$this->checkid($this->ownerid);
 		$this->checkmessage();
 	}
 

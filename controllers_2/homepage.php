@@ -27,8 +27,8 @@
 class homepageController extends http\controller
 {
 
-    public static function show()
-    {
+	private static function show()
+	{
 //this is the show method that is called to show the sites name in a template any array passed in will be accepted by the template function as a model
 //You could get fancy with the homepage and check for the userID in the session and hide/show the login / registration links when no session
 //If there is a session then you should show the user profile link
@@ -39,26 +39,16 @@ class homepageController extends http\controller
 //the name of the template 'homepage' becomes 'homepage.php' in the pages directory
 	//$sessionID = http\request::getSession("UserID");
 
-	if(isset($_GET["submit"]) == "UnLog") {
-		$_SESSION["UserID"] = NULL;
-		header('Location: index.php');
+		if(isset($_GET["submit"]) == "UnLog") {
+			$_SESSION["UserID"] = NULL;
+			header('Location: index.php');
+		}
+
+		$templateData[] = http\request::getCookie("Username");
+		$templateData["!issetSessionUserID"] = http\request::ExcalmationUserIDSession();
+		$templateData["issetSessionUserID"] = http\request::UserIDSession();
+		$templateData["UserID"] = http\request::getSessionUserID();
+		self::getTemplate('homepage', $templateData);
 	}
-
-	$templateData[] = http\request::getCookie("Username");
-	$templateData["!issetSessionUserID"] = http\request::ExcalmationUserIDSession();
-	$templateData["issetSessionUserID"] = http\request::UserIDSession();
-	$templateData["UserID"] = http\request::getSessionUserID();
-        self::getTemplate('homepage', $templateData);
-    }
-
-    public static function create()
-    {
-
-
-//I just put a $_POST here but this is where you would put the code to add a record
-        print_r($_POST);
-    }
-
-
 
 }

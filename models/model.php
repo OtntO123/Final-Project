@@ -2,15 +2,33 @@
 
 abstract class model
 {
-	public $selectID;
-	public $selectUser;
-	public $deleteID;
-	protected $className;
-	private $Allobject;
+	private $selectID;
+	private $selectUser;
+	private $deleteID;
+	private $modelNM;
+	protected $Allobject;
 	private $Scode;
 	private $conn;
 	private $launchcode;
 	protected $Result;
+
+	public function __construct() {
+		$this->setmodelNM();
+		$this->setAllObject();
+	}
+
+	public function setVariable($variable, $value) {
+		$all_changable_object = $this->getAllobject();
+		$all_changable_object[] = "selectID";
+		$all_changable_object[] = "selectUser";
+		$all_changable_object[] = "deleteID";
+		if(in_array($variable, $arr))
+			$this->$variable = $value;
+	}
+
+	protected function setmodelNM() {
+		$this->modelNM = substr(get_class($this), 7);
+	}
 	
 	public function getAllobject() {
 		return array_keys($this->Allobject);
@@ -93,7 +111,7 @@ abstract class model
 
 		$SQLtype = "selectUser";
 		if($this->check_isset($SQLtype)) {
-			if($this->className == "todos") {
+			if($this->modelNM == "todos") {
 				$this->setResultRecord("Error: TODOs have no USERNAME table.<br>");
 				$this->setResultIsOK(FALSE);
 				return NULL;
@@ -156,7 +174,7 @@ abstract class model
 
 	protected function selectAllWhen($where, $Parameter) {
 		$Parameter = (array) $Parameter;
-		$this->Scode = "SELECT * FROM " . $this->className . " WHERE " . $where . " = :" . $Parameter[0];
+		$this->Scode = "SELECT * FROM " . $this->modelNM . " WHERE " . $where . " = :" . $Parameter[0];
 		$this->PrepareBindExe($Parameter);
 		$this->setFetchData();
 	}
@@ -172,21 +190,6 @@ abstract class model
 		}
 	}
 
-	protected function setAllObject() {
-		$Allobject = get_object_vars($this);
-		unset($Allobject["validated"]);
-		unset($Allobject["className"]);
-		unset($Allobject["Allobject"]);
-		unset($Allobject["selectID"]);
-		unset($Allobject["selectUser"]);
-		unset($Allobject["deleteID"]);
-		unset($Allobject["Scode"]);
-		unset($Allobject["conn"]);
-		unset($Allobject["launchcode"]);
-		unset($Allobject["Result"]);
-		$this->Allobject = $Allobject;
-	}
-
 	private function getkeysinAllobject() {
 		unset($this->Allobject['id']);
 		$this->Allobject = array_keys($this->Allobject);
@@ -194,7 +197,7 @@ abstract class model
 
 	private function Insert() {	//Generate Insert Code with variable in child class
 		$str = $this->getStringOfkeys();
-		$this->Scode = "INSERT INTO " . $this->className . " (";
+		$this->Scode = "INSERT INTO " . $this->modelNM . " (";
 		$this->Scode .= $str["keys"] . ") ";	//implode array to string
 		$this->Scode .= "VALUES (" . $str[":keys"] . ");";
 		$this->PrepareBindExe($this->Allobject);
@@ -214,7 +217,7 @@ abstract class model
 	private function Update() {	//Generate Update Code with variable in child class
 		$parameters = $this->Allobject;
 		$parameters[] = "id";
-		$this->Scode = "UPDATE " . $this->className . " SET ";
+		$this->Scode = "UPDATE " . $this->modelNM . " SET ";
 		$this->Scode .= $this->getUpdateScode();
 		$this->Scode .= " WHERE id = :id";
 		$this->PrepareBindExe($parameters);
@@ -229,7 +232,7 @@ abstract class model
 
 	private function Delete() {	//Generate Delete Code with variable in child class
 		$parameters = array("deleteID");
-		$this->Scode = "DELETE FROM " .  $this->className . " WHERE id = :deleteID";
+		$this->Scode = "DELETE FROM " .  $this->modelNM . " WHERE id = :deleteID";
 		$this->PrepareBindExe($parameters);
 	}
 

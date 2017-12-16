@@ -1,4 +1,4 @@
-<?php	namespace views
+<?php	namespace views;
 
 class view
 {
@@ -12,6 +12,6 @@ class view
 	}
 
 	public function output() {
-		return $this->controller->display();
+		$this->controller->display();
 	}
 }

@@ -30,7 +30,7 @@ echo $request_method . " " . $page . " " . $action . "<br>";
 
 	private static function sendroutefortest($request_method, $page, $action) {
         //this gets the routes objects, you need to add routes to add pages and follow the template of the route specified
-		$routes = \routes::getRoutes();
+		$routes = routes::getRoutes();
 		return self::testingroute($routes, $request_method, $page, $action);
 	}
 
@@ -67,20 +67,23 @@ echo $request_method . " " . $page . " " . $action . "<br>";
 		$controller_method = $requested_route->method;
 		self::UsingMVCtoStartCreateResponse($controller_name, $controller_method);
 	}
-	
+
 	private static function UsingMVCtoStartCreateResponse($controller_name, $controller_method) {
 		//these echo helps figure out the controller name and method
-		// echo $controller_name . '</br>';
-		// echo $controller_method . '</br>';
+		//echo $controller_name . '</br>';
+		//echo $controller_method . '</br>';
 
-		$model = new models\$tablename();
+		$modelname  = "\models\\$controller_name";
+		$model = new $modelname();
 
-		$controller = new controllers\$tablename($model);
+		$controllername  = "\controllers\\$controller_name";
+		$controller = new $controllername($model);
 
-		$view = new views\view($controller, $model);
+		$view = new \views\view($model, $controller);
 
 		$controller->$controller_method();
 
 		$view->output();
 	}
+
 }

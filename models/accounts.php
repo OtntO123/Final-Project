@@ -14,18 +14,12 @@ final class accounts extends model
 
 	protected $validated;
 
-	public function __construct($id = NULL, $username = NULL, $password = NULL, $fname = NULL, $lname = NULL, $gender = NULL, $birthday = NULL, $phone = NULL, $email = NULL) {
-		$this->id = $id;
-		$this->username = $username;
-		$this->password = $password;
-		$this->fname = $fname;
-		$this->lname = $lname;
-		$this->gender = $gender;
-		$this->birthday = $birthday;
-		$this->phone = $phone;
-		$this->email = $email;
-		$this->className = "accounts";
-		$this->setAllObject();
+	protected function setAllObject() {
+		$Allobject = get_object_vars($this);
+		unset($Allobject["validated"]);
+		unset($Allobject["Allobject"]);
+		unset($Allobject["Result"]);
+		$this->Allobject = $Allobject;
 	}
 
 	public function CheckUsernameAndPasswordPair() {
