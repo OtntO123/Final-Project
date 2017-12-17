@@ -34,6 +34,8 @@
 
 	<form action="index.php" method="get" enctype="multipart/form-data" style="display:<?php echo $data['issetSessionUserID']?>">
 		<p>Login successful. Your UserID is <?php echo $data['UserID']?>
+		<input type="hidden" name="page" value="accounts">
+		<input type="hidden" name="action" value="logout">
 		<input type="submit" value="UnLog" name="submit">
 		</p><hr>
 	</form>

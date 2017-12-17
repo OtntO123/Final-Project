@@ -3,6 +3,7 @@
 abstract class model
 {
 	private $selectID;
+	private $selectownerID;
 	private $selectUser;
 	private $deleteID;
 	private $modelNM;
@@ -17,12 +18,30 @@ abstract class model
 		$this->setAllObject();
 	}
 
+	public function cleanThisObject() {
+		$this->setAllObject();
+		$Allobj = $this->getAllobject();
+		foreach ($Allobj as $key => $val)
+			$this->$val = NULL;
+		$this->validated = NULL;
+		$this->setmodelNM();
+		$this->selectID = NULL;
+		$this->selectownerID = NULL;
+		$this->selectUser = NULL;
+		$this->deleteID = NULL;
+		$this->Scode = NULL;
+		$this->conn = NULL;
+		$this->launchcode = NULL;
+		$this->Result = NULL;
+	}
+
 	public function setVariable($variable, $value) {
 		$all_changable_object = $this->getAllobject();
 		$all_changable_object[] = "selectID";
 		$all_changable_object[] = "selectUser";
 		$all_changable_object[] = "deleteID";
-		if(in_array($variable, $arr))
+		$all_changable_object[] = "selectownerID";
+		if(in_array($variable, $all_changable_object))
 			$this->$variable = $value;
 	}
 
@@ -46,13 +65,13 @@ abstract class model
 		$this->Result["isOK"] = $isOK;
 	}
 
-	protected function checkusername() {
-		if(!preg_match("/[a-z]/i", $this->username)) {
+	protected function checkusername($variable) {
+		if(!preg_match("/[a-z]/i", $this->$variable)) {
 			$this->setAddResultRecord("Username at least contain 1 letter.<br>");
 			$this->validated = 0;
 			return FALSE;
 		}
-		if(!$this->checkStrelenshorterthan($this->username, 20)) {
+		if(!$this->checkStrelenshorterthan($this->$variable, 20)) {
 			$this->setAddResultRecord("Username should be alphabetic and less than 20 letters.<br>");
 			$this->validated = 0;
 			return FALSE;
@@ -89,6 +108,7 @@ abstract class model
 
 
 	public function Go() {	//Call function to Compile and Run SQL code, echo operation state
+		$this->setResultRecord("");
 		$this->conn = \httprequest\Database::connect();
 		if($this->conn == NULL){	//Do remains after connect
 			$this->setResultIsOK(FALSE);
@@ -107,19 +127,25 @@ abstract class model
 				$this->selectAllWhen("id", $SQLtype);
 				return NULL;
 			}
+				return NULL;
+		}
+
+		$SQLtype = "selectownerID";
+		if($this->check_isset($SQLtype)) {
+			if($this->validateID($SQLtype)) {
+				$this->selectAllWhen("ownerid", $SQLtype);
+				return NULL;
+			}
+				return NULL;
 		}
 
 		$SQLtype = "selectUser";
 		if($this->check_isset($SQLtype)) {
-			if($this->modelNM == "todos") {
-				$this->setResultRecord("Error: TODOs have no USERNAME table.<br>");
-				$this->setResultIsOK(FALSE);
-				return NULL;
-			}
-			if($this->checkusername()) {
+			if($this->checkusername($SQLtype)) {
 				$this->selectAllWhen("username", $SQLtype);
 				return NULL;
 			}
+				return NULL;
 		}
 
 		$SQLtype = "deleteID";
@@ -239,7 +265,7 @@ abstract class model
 	protected function sethashpassword() {}
 
 	protected function CheckDate($Date) {
-		if (\DateTime::createFromFormat('Y-m-d G:i:s', $Date) == FALSE) {
+		if (\DateTime::createFromFormat('Y-m-d', $Date) == FALSE) {
 			return TRUE;
 		} else {
 			return FALSE;

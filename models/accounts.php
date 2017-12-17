@@ -24,21 +24,21 @@ final class accounts extends model
 
 	public function CheckUsernameAndPasswordPair() {
 		$password_login = $this->password;
-		$this->selectAllWhen("username", "selectUser");
+		$this->Go();
 		if($this->Result["isOK"]) {
 			$this->testPassword($password_login);
 		} else {
 			$this->setResultIsOK(FALSE);
 			$this->setResultRecord("We have not this Username.");
 		}
-		return $Result;
+		return $this->Result;
 	}
 
 	private function testPassword($password_login) {
-		$ispair = password_verify($password_login, $this->password);
+		$ispair = password_verify($password_login, $this->Result["Record"][0]["password"]);
 		if($ispair) {
 			$this->setResultIsOK(TRUE);
-			$this->setResultRecord($this->id);
+			$this->setResultRecord($this->Result["Record"][0]["id"]);
 		} else {
 			$this->setResultIsOK(FALSE);
 			$this->setResultRecord("User found but password is incorrect.");
@@ -52,7 +52,7 @@ final class accounts extends model
 
 	protected function validate() {
 		$this->validated = 1;
-		$this->checkusername();
+		$this->checkusername("username");
 		$this->checkpassword();
 		$this->checkfname();
 		$this->checklname();

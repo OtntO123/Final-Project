@@ -12,6 +12,8 @@ final class todos extends model
 
 	protected $validated;
 
+
+
 	protected function setAllObject() {
 		$Allobject = get_object_vars($this);
 		unset($Allobject["validated"]);
@@ -22,29 +24,24 @@ final class todos extends model
 
 	protected function validate() {
 		$this->validated = 1;
-		$this->checkcreateddate();
 		$this->checkduedate();
 		$this->checkcreateddate();
 		$this->checkowneremail();
 		$this->checkmessage();
+		$this->checkid($this->id);
+		$this->checkid($this->ownerid);
 	}
 
 	private function checkcreateddate() {
-		if($this->createddate == "") {
-			$this->setAddResultRecord("There should be a createddate.<br>");
-			$this->validated = 0;
-		}
-		if($this->CheckDate($this->createddate)) {
-			$this->setAddResultRecord("Invalid date format.<br>");
-			$this->validated = 0;
+		if($this->createddate != "") {
+			if($this->CheckDate($this->createddate)) {
+				$this->setAddResultRecord("Invalid date format.<br>");
+				$this->validated = 0;
+			}
 		}
 	}
 
 	private function checkduedate() {
-		if($this->duedate == "") {
-			$this->setAddResultRecord("There should be a duedate.<br>");
-			$this->validated = 0;
-		}
 		if($this->CheckDate($this->duedate)) {
 			$this->setAddResultRecord("Invalid date format.<br>");
 			$this->validated = 0;
@@ -53,24 +50,15 @@ final class todos extends model
 
 
 	private function checkowneremail() {
-		if($this->owneremail != "") {
-			if (!filter_var($this->owneremail, FILTER_VALIDATE_EMAIL) or strlen($this->owneremail) > 30) {
-				$this->setAddResultRecord("Invalid email format.<br>");
-				$this->validated = 0;
-			}
+		if (!filter_var($this->owneremail, FILTER_VALIDATE_EMAIL) or strlen($this->owneremail) > 30) {
+			$this->setAddResultRecord("Invalid email format.<br>");
+			$this->validated = 0;
 		}
 	}
 
 	private function checkisdone() {
 		if(!is_bool($this->isdone)) {
 			$this->setAddResultRecord("Invalid isdone format.<br>");
-			$this->validated = 0;
-		}
-	}
-
-	private function checkid($key) {
-		if(!Is_Numeric($key) or strlen($key) > 5) {
-			$this->setAddResultRecord("Error: Have too much id in database or It is not number.<br>");
 			$this->validated = 0;
 		}
 	}
@@ -82,6 +70,13 @@ final class todos extends model
 		}
 	}
 
-
+	private function checkid($key) {
+		if(isset($key)) {
+			if(!Is_Numeric($key) or strlen($key) > 5) {
+				$this->setAddResultRecord("Error: Have too much id in database or It is not number.<br>");
+				$this->validated = 0;
+			}
+		}
+	}
 }
 

@@ -13,6 +13,7 @@ class routes
 	$this->routes[] = routes::create('GET','all','accounts','accounts','all');
 	$this->routes[] = routes::create('GET','show','accounts','accounts','show');
 	$this->routes[] = routes::create('GET','edit','accounts','accounts','edit');
+	$this->routes[] = routes::create('GET','logout','accounts','accounts','logout');
 	$this->routes[] = routes::create('GET','register','accounts','accounts','register');
 	$this->routes[] = routes::create('POST','login','accounts','accounts','login');
 	$this->routes[] = routes::create('POST','save','accounts','accounts','save');

@@ -2,64 +2,115 @@
 
 final class accounts extends controller {
 
-	protected function show()
+	public function show()
 	{		
             header("Location: index.php");
 	}
 
-	private function register() {
+	private function setAccountVariableTable($ValueArray) {
 		$inputlabel = array ("Username", "Password", "First Name", "Last Name", "Gender", "Birthday", "Phone Number", "Email Address");
 		$inputtype = array ("text", "password", "text", "text", "text", "date", "number", "email");
 		$inputname = array ("username", "password", "fname", "lname", "gender", "birthday", "phone", "email");
 		$inputstr = $inputlabel;
-		$rec = new account();
 
-		foreach ($inputname as $key => $val) {
-			$recval = $rec->$val;
-			$inputstr[$key] .= " <input type = \"$inputtype[$key]\" value = \"$recval\" name = \"$inputname[$key]\"> ";
-		}
-  		self::getTemplate('register', $inputstr);
+		foreach ($inputname as $key => $val) 
+			$inputstr[$key] .= " <input type = \"$inputtype[$key]\" value = \"$ValueArray[$val]\" name = \"$inputname[$key]\"><br> ";
+		$inputstr[4] = "Gender <select name='gender'>
+				<option value= $ValueArray[gender] >$ValueArray[gender]</option>
+				<option value='Male'>Male</option>
+				<option value='Female'>Female</option>
+				<option value='Other'>Other</option> </select><br>";
+		$this->data = $inputstr;
 	}
 
-	private function store() {
-		$bool = accounts::CreateUser();
-		if ($bool == 1) {
-			accounts::Login();
+	//Show create account page
+	public function register() {
+
+		$ValueArray = $this->getobjectForController();
+
+		$this->setAccountVariableTable($ValueArray);
+
+		$this->template = 'register';
+	}
+
+	//Show edit account 
+	public function edit() {
+		$id = \httprequest\request::getSessionUserID();
+		$ValueArray = $this->getobjectForController();
+
+
+		session_start();
+		$this->model->setVariable("selectID", $_SESSION["UserID"]);
+		$Result = $this->model->go();
+		$Result["Record"][0]["password"] = "";
+
+		foreach($ValueArray as $key => $val) {
+			$ValueArray[$key] = $Result["Record"][0][$key];
+		}
+
+		$this->setAccountVariableTable($ValueArray);
+
+		$this->template = 'edit_account';
+	}
+
+	//Create an account
+	public function store() {
+		$this->setAllPOSTvariableToModel();
+		$Result = $this->model->Go();
+
+		if($Result["isOK"]) {
+			session_start();
+			$_SESSION["UserID"] = $Result["Record"];
+			header("Location: index.php");
+		} else {
+			echo "Setting Error<br>" . $Result["Record"];
 		}
 	}
 
-	private function edit() {
-		$inputlabel = array ("Username", "Password", "First Name", "Last Name", "Gender", "Birthday", "Phone Number", "Email Address");
-		$inputtype = array ("text", "password", "text", "text", "text", "date", "number", "email");
-		$inputname = array ("username", "password", "fname", "lname", "gender", "birthday", "phone", "email");
-		$inputstr = $inputlabel;
-		$rec = accounts::ShowData($_SESSION["UserID"]);
-		$rec[0]->password = "";
-		//print_r($rec[0]);
-		foreach ($inputname as $key => $val) {
-			$recval = $rec[0]->$val;
-			$inputstr[$key] .= " <input type = \"$inputtype[$key]\" value = \"$recval\" name = \"$inputname[$key]\"> ";
-		}
-		self::getTemplate('edit_account', $inputstr);
-}
+	//Save edited account
+	public function save() {
+		$this->setAllPOSTvariableToModel();
+		session_start();
+		$id = \httprequest\request::getSessionUserID();
+		$this->model->setVariable("id", $id);
+		$Result = $this->model->Go();
 
-	private function save() {
-		$bool = accounts::EditProfile();
-		if ($bool == 1) {
-			accounts::Login();
+		if($Result["isOK"]) {
+			header("Location: index.php");
+		} else {
+			echo "Setting Error<br>" . $Result["Record"];
 		}
 	}
 
-	private function delete() {
-		$id = http\request::getSessionUserID();
-		accounts::SQLDelete($id);
-		session_destroy();
-		header("Location: index.php");
+	public function delete() {
+		session_start();
+		$id = \httprequest\request::getSessionUserID();
+		$this->fastdelete($id);
+		setcookie("username", "", time() + (86400 * 30), "/");
+		$this->logout();
 	}
 
-	private function login()
+	public function login()
 	{
-		accounts::Login();
+		$this->model->setVariable("selectUser", $_POST["username"]);
+		$this->setPOSTVariableToModel("password");
+		$Result = $this->model->CheckUsernameAndPasswordPair();
+
+		if($Result["isOK"]) {
+			session_start();
+			$_SESSION["UserID"] = $Result["Record"];
+			setcookie("username", $_POST["username"], time() + (86400 * 30), "/");
+			header("Location: index.php");
+		} else {
+			echo "Wrong Pair<br>" . $Result["Record"];
+		}
 	}
 
+	public function logout() {
+
+		session_start();
+		unset($_SESSION["UserID"]);
+		header('Location: index.php');
+
+	}
 }

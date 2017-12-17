@@ -15,7 +15,7 @@ class Database {
 		try {
 			self::$conn = new \PDO(databasesoftware . ':host=' . hostwebsite .';dbname=' . database, username, password);
 			self::$conn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
-			echo 'Connection Successful To Database.<hr>';
+			//echo 'Connection Successful To Database.<hr>';
 		}
 		catch (PDOException $e) {
 			echo "Connection Error To Database: " . $e->getMessage() . "<hr>";

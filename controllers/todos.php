@@ -3,86 +3,160 @@
 final class todos extends controller {
   //each method in the controller is named an action.
     //to call the show function the url is index.php?page=task&action=show
-	private static function show()
+	public function show()
 	{
-		$id = http\request::getSessionUserID();
-        	$Record = todos::ShowData($id);
-		$ishave_task = !empty($Record);
-		$isshow = http\request::BoolToStyle_yesORnone(!$ishave_task);
+		$Result = $this->showTasks();
+
+		if($Result["isOK"]) {			
+        		$data["Record"] = \utility\table::tablecontect($Result["Record"]);
+		} else {
+			$data["Record"] = "You have no task.<hr>";
+		}
+
+		$ishave_task = $Result["isOK"];
+
+		$isshow = \httprequest\request::BoolToStyle_yesORnone(!$ishave_task);
 		$data["istask"] = $isshow;
 
-		$noisshow = http\request::BoolToStyle_yesORnone($ishave_task);
+		$noisshow = \httprequest\request::BoolToStyle_yesORnone($ishave_task);
 		$data["!istask"] = $noisshow;
 
-		echo utility\table::tablecontect($Record, "My Task");
-        	self::getTemplate('show_task', $data);
+		$this->data = $data;
+		$this->template = 'show_task';
+
 	}
 
-	private static function create()
-	{
-        	$inputlabel = array ("Owneremail", "Ownerid", "Createddate", "Duedate", "Message", "Isdone");
-		$inputtype = array ("email", "number", "date", "date", "text", "text", "number");
-		$inputname = array ("owneremail", "ownerid", "createddate", "duedate", "message", "isdone");
-		$inputstr = $inputlabel;
-		$rec = new todo();
+	private function showTasks() {
+		session_start();
+		$id = \httprequest\request::getSessionUserID();
+		$this->model->setVariable("selectownerID", $id);
+		$Result = $this->model->Go();
+		return $Result;
+	}
 
-		foreach ($inputname as $key => $val) {
-			$recval = $rec->$val;
-			$inputstr[$key] .= " <input type = \"$inputtype[$key]\" value = \"$recval\" name = \"$inputname[$key]\"> ";
+	private function setTaskVariableTable($ValueArray) {
+		$inputlabel = array ("Owneremail", "Duedate", "Message");
+		$inputtype = array ("email", "date", "text");
+		$inputname = array ("owneremail", "duedate", "message");
+		$inputstr = $inputlabel;
+
+		foreach ($inputname as $key => $val) 
+			$inputstr[$key] .= " <input type = \"$inputtype[$key]\" value = \"$ValueArray[$val]\" name = \"$inputname[$key]\"><br> ";
+		$inputstr[] = "Isdone <select name='isdone'>
+				<option value= $ValueArray[isdone] >$ValueArray[isdone]</option>
+				<option value='1'>Have Done</option>
+				<option value='0'>Have Not Done</option></select>";
+		$this->data = $inputstr;
+	}
+
+	//Show Task create table
+	public function create()
+	{
+		session_start();
+		$ValueArray = $this->getobjectForController();
+
+		$this->setTaskVariableTable($ValueArray);
+
+		$this->template = 'create_task';
+
+	}
+
+	//Create A Task
+	public function store()
+	{
+		session_start();
+		$id = \httprequest\request::getSessionUserID();
+
+		date_default_timezone_set('America/New_York');
+		$date = date('Y-m-d');
+
+		$this->setPOSTVariableToModel("owneremail");
+		$this->model->setVariable("ownerid", $id);
+		$this->model->setVariable("createddate", $date);
+		$this->setPOSTVariableToModel("duedate");
+		$this->setPOSTVariableToModel("message");
+		$this->setPOSTVariableToModel("isdone");
+
+		$Result = $this->model->Go();
+
+		if($Result["isOK"]) {
+			header("Location: index.php?page=tasks&action=show");
+		} else {
+			echo "Setting Error<br>" . $Result["Record"];
 		}
-
-		$data["outputlabel"] = $inputstr;
-
-		self::getTemplate('create_task', $data);
-
 	}
 
-    //this is the function to view edit record form
-	private static function edit()
+	//Show Task edit table
+	public function edit()
 	{
-        	$inputlabel = array ("Owneremail", "Ownerid", "Createddate", "Duedate", "Message", "Isdone");
-		$inputtype = array ("email", "number", "date", "date", "text", "text", "number");
-		$inputname = array ("owneremail", "ownerid", "createddate", "duedate", "message", "isdone");
-		$inputstr = $inputlabel;
-		$rec = todos::ShowData($_SESSION["UserID"]);
-		unset($rec[0]->id);
-		print_r($rec[0]);
-		foreach ($inputname as $key => $val) {
-			$recval = $rec[0]->$val;
-			$inputstr[$key] .= "<input type = \"$inputtype[$key]\" value = \"$recval\" name = \"$inputname[$key]\">";
-			if($val == "createddate" or $val =="duedate") {
-				$inputstr[$key] = substr($inputstr[$key], 0, -1) . " readonly >";
+		$Result = $this->showTasks();
+		$this->data["Record"] = \utility\table::TableEdit($Result["Record"]);
+		$this->template = 'edit_task';
+	}
+
+	//UPDATE OR DELETE an editted Task
+	public function save()
+	{
+		session_start();
+		$USER_ID = \httprequest\request::getSessionUserID();
+
+		$Maximum = $_POST["Maximum"];
+
+//[id|14|36] => Save [id|14] => 36 [owneremail|14] => rwe@r.v [duedate|14] => 2017-12-13 [message|14] => bytybtb [isdone|14] => on 
+		$MultiResults = array("Record" =>"", "isOK" => "TRUE");
+		for($i = 0; $i < $Maximum ; $i++) {
+			$SQLid =  $_POST["id|" . $i];
+			$SQLmethod = $_POST["id|" . $i . "|" . $SQLid];
+			if($SQLmethod != ""){
+				if($SQLmethod == "Save") {
+					$owneremail = $_POST["owneremail|" . $i];
+					$duedate = $_POST["duedate|" . $i];
+					$message = $_POST["message|" . $i];
+					$createddate = $_POST["createddate|" . $i];
+					$isdone = isset($_POST["isdone|" . $i]);
+echo $SQLid . " " . $SQLmethod . " " . $USER_ID . " " . $owneremail . " " . $createddate . " " . $duedate . " " . $message . " " . $isdone;
+
+					$this->model->setVariable("id", $SQLid);
+
+					$this->model->setVariable("owneremail", $owneremail);
+
+					$this->model->setVariable("ownerid", $USER_ID);
+
+					$this->model->setVariable("createddate", $createddate);
+					
+					$this->model->setVariable("duedate", $duedate);
+
+					$this->model->setVariable("message", $message);
+
+					if($isdone){
+						$this->model->setVariable("isdone", TRUE);
+					} else {
+						$this->model->setVariable("isdone", FALSE);
+					}
+
+					$OneResult = $this->model->Go();
+
+					if(!$OneResult["isOK"])
+						$MultiResults["isOK"] = FALSE;
+					$Order = $i + 1;
+					$MultiResults["Record"] .= "There is Error in No." . $Order . " . " . $OneResult["Record"];
+
+				} else if($SQLmethod == "Delete") {
+					$this->fastdelete($SQLid);
+				}
 			}
+			$this->model->cleanThisObject();
 		}
 
-		$data["outputlabel"] = $inputstr;
 
-		self::getTemplate('edit_task', $data);
-
-	}
-
-    //this would be for the post for sending the task edit form
-	private static function store()
-	{
-		
-		$bool = todos::Createtask();
-		if($bool) header("Location: index.php?page=tasks&action=show");
-		
-
-	}
-
-	private static function save()
-	{
-		$bool = todos::Edittask();
-		if($bool) header("Location: index.php?page=tasks&action=show");
+		if($MultiResults["isOK"]) {
+			header("Location: index.php?page=tasks&action=show");
+		} else {
+			echo "Setting Error<br>" . $MultiResults["Record"];
+		}
 	}
 
     //this is the delete function.  You actually return the edit form and then there should be 2 forms on that.
     //One form is the todo and the other is just for the delete button
-	private static function delete() {
-		$id = http\request::getSessionUserID();
-		todos::SQLDelete($id);
-		session_destroy();
-		header("Location: index.php?page=tasks&action=show");
-	}
+
 }

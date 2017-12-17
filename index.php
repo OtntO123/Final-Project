@@ -1,5 +1,4 @@
 <?php
-//session_start();
 $time_start = microtime(true);
 function Benchmark($time_start){
 	echo '<br><b>Total Execution Time:</b> ' . (microtime(true) - $time_start) * 1000 . ' ms<br>';
@@ -12,8 +11,6 @@ if(1) {
 	print_r($_POST);
 	echo "<BR> GET ";
 	print_r($_GET);
-	echo "<BR> SESSION ";
-	print_r($_SESSION);
 //	echo "<BR> COOKIES ";
 //	print_r($_COOKIE);
 	echo "<BR>";
@@ -29,10 +26,16 @@ include_once "autoload.php";
 
 //put your database credentials here
 include_once "DatabaseConfig.php";
-//$obj = new models\todos();
+//$obj = new models\accounts();
 //$obj -> deleteID =3;
 //$obj -> selectID = 3;
-//$obj -> selectUser = "11111a";
+//$obj -> setVariable("selectUser", "11111a");
+//$obj -> setVariable("username", "1131d1a");
+//$obj -> setVariable("password", "ii11515151");
+//$result = $obj -> CheckUsernameAndPasswordPair();
+//$result = $obj -> go();
+//print_r($result);
+
 /*
 //$obj -> id = 6;
 $obj -> username = "1131d1a";
