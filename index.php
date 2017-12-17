@@ -19,44 +19,14 @@ if(1) {
 	error_reporting(E_ALL);
 }
 
-//print_r($_SESSION);
 //Autoloader class to load all the different directories
 
 include_once "autoload.php";
-
-//put your database credentials here
 include_once "DatabaseConfig.php";
-//$obj = new models\accounts();
-//$obj -> deleteID =3;
-//$obj -> selectID = 3;
-//$obj -> setVariable("selectUser", "11111a");
-//$obj -> setVariable("username", "1131d1a");
-//$obj -> setVariable("password", "ii11515151");
-//$result = $obj -> CheckUsernameAndPasswordPair();
-//$result = $obj -> go();
-//print_r($result);
-
-/*
-//$obj -> id = 6;
-$obj -> username = "1131d1a";
-$obj -> password = "ii11515151";
-$obj -> fname = "iiiiii";
-$obj -> lname = "iiiiii";
-$obj -> gender = "Male";
-$obj -> birthday = "2017-02-10 91:99:90";
-$obj -> phone = 4124411444;
-$obj -> email = "eq@eqwed.c";
-
-$obj = new models\todos();
-$Result = $obj -> getAllobject();
-print_r( $Result);
-print_r($Result["Record"]);
-*/
-
-
-$response = httprequest\processRequest::createResponse();
 
 //this starts the program as a static.  Start tracing the program from here following the classes and methods being called
+$response = httprequest\processRequest::createResponse();
+
 Benchmark($time_start);
 //read the notes below
 

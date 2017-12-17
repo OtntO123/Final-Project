@@ -17,7 +17,6 @@
 		<input type="submit" value="Save Setting" name="submit">
 		<input type="hidden" name="page" value="tasks">
 		<input type="hidden" name="action" value="edit">
-		<input type="reset">
 		</p>
 	</form>
 </body>

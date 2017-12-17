@@ -55,15 +55,25 @@ final class accounts extends controller {
 
 	//Create an account
 	public function store() {
-		$this->setAllPOSTvariableToModel();
-		$Result = $this->model->Go();
+		$this->model->setVariable("selectUser", $_POST["username"]);
+		$ResultUser = $this->model->Go();
+		$haveThisUser  = $ResultUser["isOK"];
 
-		if($Result["isOK"]) {
-			session_start();
-			$_SESSION["UserID"] = $Result["Record"];
-			header("Location: index.php");
+		if(!$haveThisUser) {
+			$this->model->cleanThisObject();
+			$this->setAllPOSTvariableToModel();
+			$Result = $this->model->Go();
+
+			if($Result["isOK"]) {
+				session_start();
+				$_SESSION["UserID"] = $Result["Record"];
+				header("Location: index.php");
+			} else {
+				echo "Setting Error<br>" . $Result["Record"];
+			}
+
 		} else {
-			echo "Setting Error<br>" . $Result["Record"];
+			echo "This Username have been used, try another.<br>";
 		}
 	}
 

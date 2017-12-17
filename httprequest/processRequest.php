@@ -20,7 +20,7 @@ class processRequest
 		$request_method = request::getRequestMethod();
 		$page = request::getPage();
 		$action = request::getAction();
-echo $request_method . " " . $page . " " . $action . "<br>";
+//echo $request_method . " " . $page . " " . $action . "<br>";
 		return self::sendroutefortest($request_method, $page, $action);
         //these are helpful for figuring out the action and method being requested
         //echo 'Action: ' . $action . '</br>';
@@ -73,13 +73,15 @@ echo $request_method . " " . $page . " " . $action . "<br>";
 		//echo $controller_name . '</br>';
 		//echo $controller_method . '</br>';
 
-		$modelname  = "\models\\$controller_name";
+		$modelname  = "\\models\\$controller_name";
+		$controllername  = "\\controllers\\$controller_name";
+		$viewname = "\\views\\view";
+
 		$model = new $modelname();
 
-		$controllername  = "\controllers\\$controller_name";
 		$controller = new $controllername($model);
 
-		$view = new \views\view($model, $controller);
+		$view = new $viewname($model, $controller);
 
 		$controller->$controller_method();
 

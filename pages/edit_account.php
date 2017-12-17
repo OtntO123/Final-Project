@@ -14,20 +14,20 @@
 
 		<h1><b>Edit My Account</b></h1><hr><br><?php foreach ($data as $key => $str) echo $str . "<br>";?>
 
-		<br><input type="submit" value="Save Setting" name="submit">
+		<input type="submit" value="Save Setting" name="submit">
 		<input type="hidden" name="page" value="accounts">
 		<input type="hidden" name="action" value="save">
 	</form>
 
 
 	<form action="index.php" method="post" enctype="multipart/form-data">
-		<br><input type="hidden" name="page" value="accounts">
+		<input type="hidden" name="page" value="accounts">
 		<input type="hidden" name="action" value="delete">
 		<input type="submit" value="Delete My Account" name="submit">
 	</form>
 
 	<form action="index.php" method="get" enctype="multipart/form-data" style="display:<?php echo $data['!istask']?>">
-		<br><input type="hidden" name="page" value="accounts">
+		<input type="hidden" name="page" value="accounts">
 		<input type="hidden" name="action" value="show">
 		<input type="submit" value="Back To My Account" name="submit">
 	</form>
