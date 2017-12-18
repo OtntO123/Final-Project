@@ -1,91 +1,114 @@
 <?php	namespace httprequest;
 
-//by using the use here you don't have to put http on each class in that namespace
-
+//From URL, get value of page, form method and action. By searching for them in a same Route from Routers, then get page, accounts or tasks controller and controller's action of that Route.
 class processRequest
 {
+	private $request_method;
 
-	//this is the main function of the program to calculate the response to a get or post request
-	public static function createResponse()
-	{
-		$requested_route = self::getRequestedRoute();
-		self::prepareToCreate($requested_route);
-	}	
+	private $page;
+
+	private $action;
+
+	private $routes;
+
+	private $StartRoute;
+
+	private $controller_name;
+
+	//this determines the method to call for the controller
+	private $controller_method;
+
 	
-	//this function matches the request to the correct controller
-	private static function getRequestedRoute()
-	{
+	public function __construct() {
+		//this function calculate the response to a get or post request into $request_method
+		$this->setRequestMethod();
 
-	//this is a helper function that needs to be improved because it does too much.  I will look for this in grading
-		$request_method = request::getRequestMethod();
-		$page = request::getPage();
-		$action = request::getAction();
-//echo $request_method . " " . $page . " " . $action . "<br>";
-		return self::sendroutefortest($request_method, $page, $action);
-        //these are helpful for figuring out the action and method being requested
-        //echo 'Action: ' . $action . '</br>';
-        //echo 'Page: ' . $page . '</br>';
-        //echo 'Request Method: ' . $request_method . '</br>'
+		//this function get value of page from url into $page
+		$this->setPage();
+
+		//this function get value of action from url into $action
+		$this->setAction();
+
+		//this function get all predefined routes into $routes
+		$this->setroutes();
+
+		//this function get a route which has this page and action from all predefined Routes into $routes
+		$this->setStartRoute();
+
+		//this function check whether there is a kind of this route. If no, exit
+		$this->checkroute();
+
+		//this function set controller name and controller's action
+		$this->setController_NameAndMethod();
+
+		//this function use MVC pattern to executive action and generate web pages
+		$this->PrepareUsingMVCto_CreateResponse();
 	}
 
-	private static function sendroutefortest($request_method, $page, $action) {
-        //this gets the routes objects, you need to add routes to add pages and follow the template of the route specified
-		$routes = routes::getRoutes();
-		return self::testingroute($routes, $request_method, $page, $action);
+
+
+	private function setRequestMethod() {
+		$this->request_method = request::getRequestMethod();
 	}
 
-	private static function testingroute($routes, $request_method, $page, $action){
-		$foundRoute = NULL;
-        //this figures out which route matches the page being requested in the URL and returns it so that the controller and method can be called
-		$foundRoute = self::checkroute($routes, $request_method, $page, $action);
-		return self::findpage($foundRoute);
+	private function setPage() {
+		$this->page = request::getPage();
 	}
 
-	private static function checkroute($routes, $request_method, $page, $action) {
-		foreach ($routes as $route) {
-			if ($route->page == $page && $route->http_method == $request_method && $route->action == $action) {
-			return $route;
-			}
+	private function setAction() {
+		$this->action = request::getAction();
+	}
+
+	private function setroutes() {
+		$this->routes = routes::getRoutes();
+	}
+
+	private function setStartRoute() {
+		$ROUTs = $this->routes;
+		$PAGs = $this->page;
+		$REQST = $this->request_method;
+		$ACTN = $this->action;
+		//find a required route in predefined Routes
+		foreach ($ROUTs as $route) {
+			if ($route->page == $PAGs && $route->http_method == $REQST && $route->action == $ACTN)
+				$this->StartRoute = $route;
 		}	
 	}
 
-	private static function findpage($foundRoute) {
-		if (is_null($foundRoute)) {
-			controller::getTemplate('notfound');
+	private function checkroute() {
+		if (is_null($this->StartRoute)) {
+			//If there is not such route, include a page, and show page not found and exit.
+			request::includepage('notfound');
 			exit;
-		} else {
-			return $foundRoute;
 		}
 	}
 
-	private static function prepareToCreate($requested_route) {
-		//this print r shows the requested route
-		//print_r($requested_route);
-		//This is an important function to look at, it determines which controller to use
-		$controller_name = $requested_route->controller;
-		//this determines the method to call for the controller
-		$controller_method = $requested_route->method;
-		self::UsingMVCtoStartCreateResponse($controller_name, $controller_method);
+	private function setController_NameAndMethod() {
+		//Get controller name and method from an route
+		$this->controller_name = $this->StartRoute->controller;
+		$this->controller_method = $this->StartRoute->method;		
 	}
 
-	private static function UsingMVCtoStartCreateResponse($controller_name, $controller_method) {
-		//these echo helps figure out the controller name and method
-		//echo $controller_name . '</br>';
-		//echo $controller_method . '</br>';
-
-		$modelname  = "\\models\\$controller_name";
-		$controllername  = "\\controllers\\$controller_name";
+	private function PrepareUsingMVCto_CreateResponse() {
+		//instantiate an controller's child class whose name is equal to table name
+		$modelname  = "\\models\\" . $this->controller_name;
+		$controllername  = "\\controllers\\" . $this->controller_name;
 		$viewname = "\\views\\view";
+		$controllermethod = $this->controller_method;
 
+		//instantiate Model
 		$model = new $modelname();
 
+		//instantiate controller
 		$controller = new $controllername($model);
 
+		//instantiate view
 		$view = new $viewname($model, $controller);
 
-		$controller->$controller_method();
+		//execute an acion from controller
+		$controller->$controllermethod();
 
+		//display results and page
 		$view->output();
 	}
-
 }

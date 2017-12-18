@@ -12,20 +12,21 @@
 <body>
 	<form action="index.php" method="post" enctype="multipart/form-data">
 
-		<h1><b>Edit My Account</b></h1><hr><br><?php foreach ($data as $key => $str) echo $str . "<br>";?>
+		<h1><b>Edit My Account</b></h1><hr><br><?php foreach ($data['Record'] as $key => $str) echo $str . "<br>";?>
 
 		<input type="submit" value="Save Setting" name="submit">
 		<input type="hidden" name="page" value="accounts">
 		<input type="hidden" name="action" value="save">
+		<input type="hidden" name="username" value="<?php echo $data['username']?>">
 	</form>
-
+<br>
 
 	<form action="index.php" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="page" value="accounts">
 		<input type="hidden" name="action" value="delete">
 		<input type="submit" value="Delete My Account" name="submit">
 	</form>
-
+<br>
 	<form action="index.php" method="get" enctype="multipart/form-data" style="display:<?php echo $data['!istask']?>">
 		<input type="hidden" name="page" value="accounts">
 		<input type="hidden" name="action" value="show">

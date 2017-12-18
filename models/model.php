@@ -13,11 +13,14 @@ abstract class model
 	private $launchcode;
 	protected $Result;
 
+	//initialize model name which is table name in SQL
+	//initialize AllObject
 	public function __construct() {
 		$this->setmodelNM();
 		$this->setAllObject();
 	}
 
+	//Clean all variable in this object
 	public function cleanThisObject() {
 		$this->setAllObject();
 		$Allobj = $this->getAllobject();
@@ -35,6 +38,7 @@ abstract class model
 		$this->Result = NULL;
 	}
 
+	//Used by outside to set value of variables in this object
 	public function setVariable($variable, $value) {
 		$all_changable_object = $this->getAllobject();
 		$all_changable_object[] = "selectID";
@@ -45,26 +49,32 @@ abstract class model
 			$this->$variable = $value;
 	}
 
+	//Set model name which is table name in SQL
 	protected function setmodelNM() {
 		$this->modelNM = substr(get_class($this), 7);
 	}
 	
+	//Get from outside model name which is table name in SQL
 	public function getAllobject() {
 		return array_keys($this->Allobject);
 	}
-
+	
+	//set Add record in array Result
 	protected function setAddResultRecord($record) {
 		$this->Result["Record"] .= $record;
 	}
 
+	//Set record in array Result
 	protected function setResultRecord($record) {
 		$this->Result["Record"] = $record;
 	}
 
+	//Set isOK in array Result
 	protected function setResultIsOK($isOK) {
 		$this->Result["isOK"] = $isOK;
 	}
 
+	//Check username
 	protected function checkusername($variable) {
 		if(!preg_match("/[a-z]/i", $this->$variable)) {
 			$this->setAddResultRecord("Username at least contain 1 letter.<br>");
@@ -79,6 +89,7 @@ abstract class model
 		return TRUE;
 	}
 
+	//check the length of an string which not shorter than $digit
 	protected function checkStrelenshorterthan($variable, $digit) {
 		if(strlen($variable) <= $digit) {
 			return TRUE;
@@ -87,6 +98,7 @@ abstract class model
 		}
 	}
 
+	//check whether is a number
 	protected function checkIsnumber($variable) {
 		if(Is_Numeric($variable)) {
 			return TRUE;
@@ -95,6 +107,7 @@ abstract class model
 		}
 	}
 
+	//Check ID
 	private function validateID($variable) {
 		$digit = 3;
 		if(!$this->checkIsnumber($this->$variable) or !$this->checkStrelenshorterthan($this->$variable, $digit)) {
@@ -105,8 +118,8 @@ abstract class model
 		return TRUE;
 	}
 
-
-
+//////////////////////////////////////////////////////////////
+	//Main function to detect and run sql command
 	public function Go() {	//Call function to Compile and Run SQL code, echo operation state
 		$this->setResultRecord("");
 		$this->conn = \httprequest\Database::connect();
@@ -119,6 +132,7 @@ abstract class model
 		return $this->Result;
 	}
 
+	//Used by Main function GO, to detect and run sql command. Put result into $Result["Record"] and $Result["isOK"]
 	private function setScodeAndExe() {
 		//Execute Select or Delete SQL Command without check input validation
 		$SQLtype = "selectID";
@@ -156,8 +170,7 @@ abstract class model
 			}
 		}
 
-/////////////////////////////////////////////////////////////////////
-
+		/////////////////////////////////////////////////////////////////////
 		//Start Data validation before Execute Insert or Update SQL Command  
 		$this->validate();
 		if(!($this->validated)){
@@ -178,9 +191,9 @@ abstract class model
 		$this->setResultIsOK(FALSE);
 		$this->setResultRecord("Execute Nothing.");
 	}
+///////////////////////////////////////////////////////////////////////////////////////
 
-
-
+	//Check whether a variable is set
 	private function check_isset($var) {
 		if(!is_null($this->$var)) {
 			return TRUE;
@@ -189,6 +202,7 @@ abstract class model
 		}
 	}
 
+	//Prepare SQL command and bind value of variable into it
 	private function PrepareBindExe($parameters) {
 		$this->launchcode = $this->conn->prepare($this->Scode);
 		foreach ($parameters as $key => $value) {
@@ -198,6 +212,7 @@ abstract class model
 		$this->setResultIsOK($this->launchcode->execute());
 	}
 
+	//Generate SQL command 'Select * When ' and run and return result into $Result["Record"] and $Result["isOK"]
 	protected function selectAllWhen($where, $Parameter) {
 		$Parameter = (array) $Parameter;
 		$this->Scode = "SELECT * FROM " . $this->modelNM . " WHERE " . $where . " = :" . $Parameter[0];
@@ -205,6 +220,7 @@ abstract class model
 		$this->setFetchData();
 	}
 
+	//Used by SelectAllWhen to fetch data into $Result["Record"] and $Result["isOK"]
 	private function setFetchData() {
 		if ($this->launchcode->rowCount() > 0) {
 			$this->launchcode->setFetchMode(\PDO::FETCH_ASSOC);
@@ -216,31 +232,36 @@ abstract class model
 		}
 	}
 
+	//get all variablie of SQL table into an array of values
 	private function getkeysinAllobject() {
 		unset($this->Allobject['id']);
 		$this->Allobject = array_keys($this->Allobject);
 	}
 
-	private function Insert() {	//Generate Insert Code with variable in child class
+	//Generate SQL command 'Insert into () Value ()' and run and return result into $Result["Record"] and $Result["isOK"]
+	private function Insert() {
 		$str = $this->getStringOfkeys();
 		$this->Scode = "INSERT INTO " . $this->modelNM . " (";
-		$this->Scode .= $str["keys"] . ") ";	//implode array to string
+		$this->Scode .= $str["keys"] . ") ";
 		$this->Scode .= "VALUES (" . $str[":keys"] . ");";
 		$this->PrepareBindExe($this->Allobject);
 		$this->id = $this->conn->lastInsertId();
 	}
 
+	//implode array into string
 	private function getStringOfkeys() {
 		$str["keys"] = $this->implodearraywithcomma(', ');
 		$str[":keys"] = ":" . $this->implodearraywithcomma(', :');
 		return $str; 
 	}
 
+	//implode array into string with comma
 	private function implodearraywithcomma($seperator) {
 		return implode($seperator, $this->Allobject);
 	}
 
-	private function Update() {	//Generate Update Code with variable in child class
+	//Generate SQL command 'UPDATE table SET WHERE id = :id ' and run and return result into $Result["Record"] and $Result["isOK"]
+	private function Update() {
 		$parameters = $this->Allobject;
 		$parameters[] = "id";
 		$this->Scode = "UPDATE " . $this->modelNM . " SET ";
@@ -249,6 +270,7 @@ abstract class model
 		$this->PrepareBindExe($parameters);
 	}
 
+	//Used by Update to generate SET in SQL UPDATE command
 	private function getUpdateScode() {
 		foreach ($this->Allobject as $key => $val) {
 			$this->Allobject[$key] .= " = :" . $val;		
@@ -256,14 +278,17 @@ abstract class model
 		return $this->implodearraywithcomma(', ');
 	}
 
-	private function Delete() {	//Generate Delete Code with variable in child class
+	//Generate SQL command 'DELETE FROM table WHERE id = :deleteID' and run and return result into $Result["Record"] and $Result["isOK"]
+	private function Delete() {
 		$parameters = array("deleteID");
 		$this->Scode = "DELETE FROM " .  $this->modelNM . " WHERE id = :deleteID";
 		$this->PrepareBindExe($parameters);
 	}
 
+	//Set hash password
 	protected function sethashpassword() {}
 
+	//Used by validation to check date formate
 	protected function CheckDate($Date) {
 		if (\DateTime::createFromFormat('Y-m-d', $Date) == FALSE) {
 			return TRUE;

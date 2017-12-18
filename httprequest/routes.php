@@ -1,11 +1,11 @@
 <?php	namespace httprequest;
 
-//Use Factory mode.
-
+//Use Factory mode to define routes for examination of URL request
 class routes
 {
 	private $routes;
 
+	//Use Factory mode to define routes for examination of URL request
 	public function __construct() {
 	//create($http_method, $action, $page, $controller, $method)		
 	$this->routes[] = routes::create('GET','show','homepage','homepage','show');
@@ -34,11 +34,13 @@ class routes
 		return $routs->routes;
 	}
 
+	//instantiate new routes
 	public static function create($http_method, $action, $page, $controller, $method) {
 		return new route($http_method, $action, $page, $controller, $method);
 	}
 }
 
+//route model for factory mode
 class route
 {
 	public $http_method;

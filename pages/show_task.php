@@ -28,7 +28,7 @@
 		<input type="hidden" name="action" value="edit">
 		<input type="submit" value="Edit My Task" name="submit">
 	</form>
-
+<br>
 	<form action="index.php" method="get" enctype="multipart/form-data" style="display:yes">
 		<input type="hidden" name="page" value="accounts">
 		<input type="hidden" name="action" value="show">

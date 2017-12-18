@@ -12,7 +12,7 @@
 <body>
 	<form action="index.php" method="post" enctype="multipart/form-data">
 		<h1><b>Create An Account</b></h1><hr>
-		<p><?php foreach ($data as $key => $str) echo $str . "<br>";?></p>
+		<p><?php foreach ($data['Record'] as $key => $str) echo $str . "<br>";?></p>
 
 		<input type="submit" value="Create An Account" name="submit">
 		<input type="hidden" name="page" value="accounts">
